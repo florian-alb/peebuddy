@@ -1,9 +1,4 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import 'dotenv/config';
+import { drizzle } from 'drizzle-orm/node-postgres';
 
-async function main() {
-  const client = postgres(process.env.DATABASE_URL);
-  const db = drizzle({ client });
-}
-
-main();
+export const db = drizzle(process.env.DATABASE_URL!);

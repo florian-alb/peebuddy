@@ -9,6 +9,15 @@ import { Button } from '@repo/ui/button';
 
 import styles from './page.module.css';
 
+import { User, Role } from '@repo/types';
+
+const user: User = {
+  id: '1',
+  username: 'John Doe',
+  email: 'john.doe@example.com',
+  role: Role.ADMIN,
+};
+
 const Gradient = ({
   conic,
   className,

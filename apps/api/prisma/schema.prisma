@@ -52,7 +52,7 @@ model User {
   username   String    @db.VarChar(255)
   password   String    @db.VarChar(255)
   email      String    @unique(map: "users_email_unique") @db.VarChar(255)
-  roles      Roles?    @default(user)
+  role       Roles?    @default(user)
   updated_at DateTime? @db.Timestamp(6)
   created_at DateTime  @default(now()) @db.Timestamp(6)
   deleted_at DateTime? @db.Timestamp(6)

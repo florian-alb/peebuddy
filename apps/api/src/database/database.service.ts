@@ -9,7 +9,8 @@ export class DatabaseService
   async onModuleInit() {
     await this.$connect();
   }
-  async onModuleDestroy() {
-    await this.$disconnect;
+
+  onModuleDestroy() {
+    this.$disconnect;
   }
 }

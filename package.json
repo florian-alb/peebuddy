@@ -1,5 +1,5 @@
 {
-  "name": "turborepo-prisma",
+  "name": "peebuddy-turbo",
   "private": true,
   "scripts": {
     "build": "turbo run build",

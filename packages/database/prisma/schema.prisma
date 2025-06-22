@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Picture {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  toilet_id  String?   @db.Uuid
+  name       String?   @db.VarChar(255)
+  url        String?   @db.VarChar(255)
+  updated_at DateTime? @db.Timestamp(6)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+  Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pictures_toilet_id_toilets_id_fk")
+}
+
+model Review {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rating     Int       @db.SmallInt
+  comment    String?
+  toilet_id  String?   @db.Uuid
+  user_id    String?   @db.Uuid
+  updated_at DateTime? @db.Timestamp(6)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+  Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_toilet_id_toilets_id_fk")
+  User       User?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_user_id_users_id_fk")
+}
+
+model Toilet {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  longitude   Decimal   @db.Decimal
+  latitude    Decimal   @db.Decimal
+  is_free     Boolean
+  is_public   Boolean
+  is_handicap Boolean
+  is_commerce Boolean
+  is_verified Boolean
+  updated_at  DateTime? @db.Timestamp(6)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at  DateTime? @db.Timestamp(6)
+  Picture     Picture[]
+  Review      Review[]
+}
+
+model User {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username   String    @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  email      String    @unique(map: "users_email_unique") @db.VarChar(255)
+  roles      Roles?    @default(user)
+  updated_at DateTime? @db.Timestamp(6)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+  Review     Review[]
+}
+
+enum Roles {
+  admin
+  user
+}

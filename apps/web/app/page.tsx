@@ -1,18 +1,9 @@
-'use client'
-
 import styles from "./page.module.css";
-import { authClient } from "@repo/auth";
- 
-const signIn = async () => {
-    const data = await authClient.signIn.social({
-        provider: "github"
-    })
-}
+import { prisma } from "@repo/db";
 
-export default function Home() {
-    return (
-        <div className={styles.page}>
-            <button onClick={signIn}>Sign in</button>
-        </div>
-    )
+export default async function Home() {
+  const user = await prisma.user.findFirst();
+  return (
+    <div className={styles.page}>{user?.email ?? "No user added yet"}</div>
+  );
 }

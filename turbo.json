@@ -6,7 +6,7 @@
       "dependsOn": ["^build", "^db:generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["POSTGRES_PRISMA_URL", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"]
+      "env": ["DATABASE_URL"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -17,21 +17,17 @@
     "dev": {
       "dependsOn": ["^db:generate"],
       "cache": false,
-      "persistent": true,
-      "env": ["POSTGRES_PRISMA_URL", "POSTGRES_URL_NON_POOLING", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"]
+      "persistent": true
     },
     "db:generate": {
-      "cache": false,
-      "env": ["POSTGRES_PRISMA_URL", "POSTGRES_URL_NON_POOLING"]
+      "cache": false
     },
     "db:migrate": {
       "cache": false,
-      "persistent": true,
-      "env": ["POSTGRES_PRISMA_URL", "POSTGRES_URL_NON_POOLING"]
+      "persistent": true
     },
     "db:deploy": {
-      "cache": false,
-      "env": ["POSTGRES_PRISMA_URL", "POSTGRES_URL_NON_POOLING"]
+      "cache": false
     }
   }
 }

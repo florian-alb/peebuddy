@@ -1,11 +1,7 @@
 {
   "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "paths": {
-      "@repo/db": ["packages/database/src/index.ts"],
-      "@repo/auth": ["packages/auth/src/index.ts"],
-    }
+    "outDir": "dist"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

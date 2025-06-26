@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Roles {
+  admin
+  user
+}
+
+model User {
+  @@map("user")
+  @@unique([email])
+  Review        Review[]
+  accounts      Account[]
+  createdAt     DateTime
+  created_at    DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at    DateTime? @db.Timestamp(6)
+  email         String
+  emailVerified Boolean
+  id            String    @id @default(dbgenerated("gen_random_uuid()"))
+  image         String?
+  name          String
+  roles         Roles?
+  sessions      Session[]
+  updatedAt     DateTime
+  updated_at    DateTime? @db.Timestamp(6)
+}
+
+model Toilet {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  longitude   Decimal   @db.Decimal
+  latitude    Decimal   @db.Decimal
+  is_free     Boolean
+  is_public   Boolean
+  is_handicap Boolean
+  is_commerce Boolean
+  is_verified Boolean
+  updated_at  DateTime? @db.Timestamp(6)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at  DateTime? @db.Timestamp(6)
+  Picture     Picture[]
+  Review      Review[]
+}
+
+model Account {
+  @@map("account")
+  accessToken           String?
+  accessTokenExpiresAt  DateTime?
+  accountId             String
+  createdAt             DateTime
+  id                    String    @id @default(dbgenerated("gen_random_uuid()"))
+  idToken               String?
+  password              String?
+  providerId            String
+  refreshToken          String?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                String    @db.Uuid
+}
+
+model Review {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rating     Int       @db.SmallInt
+  comment    String?
+  toilet_id  String?   @db.Uuid
+  user_id    String?   @db.Uuid
+  updated_at DateTime? @db.Timestamp(6)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+  Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_toilet_id_toilets_id_fk")
+  User       User?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_user_id_users_id_fk")
+}
+
+model Verification {
+  @@map("verification")
+  createdAt  DateTime?
+  expiresAt  DateTime
+  id         String    @id
+  identifier String
+  updatedAt  DateTime?
+  value      String
+}
+
+model Session {
+  @@map("session")
+  @@unique([token])
+  createdAt DateTime
+  expiresAt DateTime
+  id        String   @id
+  ipAddress String?
+  token     String
+  updatedAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  userId    String   @db.Uuid
+}
+
+model Picture {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  toilet_id  String?   @db.Uuid
+  name       String?   @db.VarChar(255)
+  url        String?   @db.VarChar(255)
+  updated_at DateTime? @db.Timestamp(6)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+  Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pictures_toilet_id_toilets_id_fk")
+}
+

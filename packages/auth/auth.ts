@@ -6,13 +6,18 @@ export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql"
     }),
-    emailAndPassword: {
-        enabled: true,
+    emailAndPassword: {    
+        enabled: true
     },
+    trustedOrigins: ['http://localhost:3001/*'],
     socialProviders: {
         github: {
-            clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID as string,
-            clientSecret: process.env.NEXT_PUBLIC_GITHUB_CLIENT_SECRET as string
+            clientId: process.env.GITHUB_CLIENT_ID as string,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET as string
         },
+        roblox: {
+            clientId: process.env.ROBLOX_CLIENT_ID as string,
+            clientSecret: process.env.ROBLOX_CLIENT_SECRET as string
+        }
     }
 })

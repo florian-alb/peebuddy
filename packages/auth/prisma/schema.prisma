@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,42 +8,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Roles {
-  admin
-  user
-}
-
 model User {
   id            String    @id
   name          String
-  email         String    @unique
+  email         String
   emailVerified Boolean
   image         String?
-  createdAt     DateTime  @default(now()) @db.Timestamp(6)
-  updatedAt     DateTime? @db.Timestamp(6)
-  deletedAt     DateTime? @db.Timestamp(6)
-  created_at    DateTime  @default(now()) @db.Timestamp(6)
-  updated_at    DateTime? @db.Timestamp(6)
-  deleted_at    DateTime? @db.Timestamp(6)
-  accounts      Account[]
+  createdAt     DateTime
+  updatedAt     DateTime
   sessions      Session[]
-  roles         Roles?
+  accounts      Account[]
 
+  @@unique([email])
   @@map("user")
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String   @unique
-  createdAt DateTime  @default(now()) @db.Timestamp(6)
-  updatedAt DateTime? @db.Timestamp(6)
-  deletedAt DateTime? @db.Timestamp(6)
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
   ipAddress String?
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([token])
   @@map("session")
 }
 
@@ -51,6 +43,7 @@ model Account {
   accountId             String
   providerId            String
   userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -58,10 +51,8 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-  createdAt            DateTime  @default(now()) @db.Timestamp(6)
-  updatedAt            DateTime? @db.Timestamp(6)
-  deletedAt            DateTime? @db.Timestamp(6)
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt             DateTime
+  updatedAt             DateTime
 
   @@map("account")
 }
@@ -71,9 +62,8 @@ model Verification {
   identifier String
   value      String
   expiresAt  DateTime
-  createdAt DateTime  @default(now()) @db.Timestamp(6)
-  updatedAt DateTime? @db.Timestamp(6)
-  deletedAt DateTime? @db.Timestamp(6)
+  createdAt  DateTime?
+  updatedAt  DateTime?
 
   @@map("verification")
 }

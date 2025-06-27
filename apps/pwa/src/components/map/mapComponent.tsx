@@ -17,6 +17,10 @@ const toilets: ToiletMarkerType[] = [
 export default function MapComponent() {
   const { width, height } = useWindowSize();
 
+  if (width === 0 || height === 0) {
+    return null;
+  }
+
   return (
     <PeebuddyMap
       style={{ width: width, height: height }}

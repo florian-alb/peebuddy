@@ -62,7 +62,7 @@ export default function Auth() {
   const signIn = async () => {
     try {
       await authClient.signIn.social({
-        provider: "github",
+        provider: "roblox",
       });
       // Session will be updated via the storage event listener
     } catch (error) {

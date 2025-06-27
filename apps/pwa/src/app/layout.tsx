@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers";
@@ -17,25 +17,27 @@ export const metadata: Metadata = {
   title: "PeeBuddy",
   description: "Une app pour faire pipi",
   manifest: "/manifest.json",
-  themeColor: "#fcd34d",
   applicationName: "PeeBuddy",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "PeeBuddy",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+
   other: {
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "default",
     "apple-mobile-web-app-title": "PeeBuddy",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#fcd34d",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

@@ -1,7 +1,7 @@
 "use client";
 
 import { Marker, Popup } from "react-leaflet";
-import { ToiletMarker as ToiletMarkerType } from "../types/types";
+import { ToiletMarkerType } from "../types/types";
 import { createToiletIcon } from "../lib/utils";
 
 interface ToiletMarkerProps {

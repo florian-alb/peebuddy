@@ -22,16 +22,16 @@
     },
     "db:generate": {
       "cache": false,
-      "env": ["POSTGRES_PRISMA_URL", "POSTGRES_URL_NON_POOLING"]
+      "env": ["DATABASE_URL"]
     },
     "db:migrate": {
       "cache": false,
       "persistent": true,
-      "env": ["POSTGRES_PRISMA_URL", "POSTGRES_URL_NON_POOLING"]
+      "env": ["DATABASE_URL"]
     },
     "db:deploy": {
       "cache": false,
-      "env": ["POSTGRES_PRISMA_URL", "POSTGRES_URL_NON_POOLING"]
+      "env": ["DATABASE_URL"]
     }
   }
 }

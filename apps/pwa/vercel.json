@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd ../.. && pnpm build --filter=pwa",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "functions": {
+    "apps/pwa/.next/server/**/*.js": {
+      "maxDuration": 30
+    }
+  }
+}

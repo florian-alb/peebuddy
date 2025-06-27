@@ -2,7 +2,7 @@
 
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { PeebuddyMap, ToiletMarkerType } from "@workspace/map";
-import { useEffect } from "react";
+
 const toilets: ToiletMarkerType[] = [
   {
     id: "1",

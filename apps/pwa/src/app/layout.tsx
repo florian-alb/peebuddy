@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "PeeBuddy",
   description: "Une app pour faire pipi",
   manifest: "/manifest.json",
-  themeColor: "#3b82f6",
+  themeColor: "#fcd34d",
   applicationName: "PeeBuddy",
   appleWebApp: {
     capable: true,

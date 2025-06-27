@@ -1,8 +1,8 @@
-import { PWAInstallPrompt } from "../components/PWAInstallPrompt";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
-export default function Home() {
+export default function Page() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-amber-100 flex flex-col items-center justify-center p-4">
       <div className="text-center space-y-6 max-w-md">
         <div className="space-y-2">
           <h1 className="text-4xl font-bold text-gray-900">PeeBuddy</h1>

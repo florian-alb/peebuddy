@@ -12,6 +12,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^2.2.5",
+    "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-tabs": "^1.1.12",
     "@workspace/auth": "workspace:*",
     "@workspace/db": "workspace:*",
     "@workspace/ui": "workspace:*",

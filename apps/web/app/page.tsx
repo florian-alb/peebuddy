@@ -19,11 +19,11 @@ export default async function Page() {
         {session?.user && (
           <div>
             <p>Logged in as: {session.user.name}</p>
-            <p>Role: {session.user.roles || "No role"}</p>
+            <p>Role: {session.user.role || "No role"}</p>
           </div>
         )}
         <Button size="sm">Button</Button>
-        <Auth />
+        <Auth providers={["github", "roblox"]}/>
       </div>
     </div>
   );

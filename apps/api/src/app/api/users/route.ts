@@ -64,11 +64,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-// POST is not implemented for users as they should be created through auth system
-export async function POST(request: NextRequest) {
-  return NextResponse.json(
-    { error: "User creation should be handled through the authentication system" },
-    { status: 405 }
-  );
-}

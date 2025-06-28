@@ -5,12 +5,12 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     // Count total active toilets
-    const totalToilets = await prisma.toilet.count({
+    const totalToilets = await prisma.toilet.findMany({
       where: { deleted_at: null }
     });
     
     // Count verified toilets
-    const verifiedToilets = await prisma.toilet.count({
+    const verifiedToilets = await prisma.toilet.findMany({
       where: { 
         deleted_at: null,
         is_verified: true
@@ -18,28 +18,28 @@ export async function GET(request: NextRequest) {
     });
     
     // Count toilets by type
-    const freeToilets = await prisma.toilet.count({
+    const freeToilets = await prisma.toilet.findMany({
       where: { 
         deleted_at: null,
         is_free: true
       }
     });
     
-    const publicToilets = await prisma.toilet.count({
+    const publicToilets = await prisma.toilet.findMany({
       where: { 
         deleted_at: null,
         is_public: true
       }
     });
     
-    const handicapToilets = await prisma.toilet.count({
+    const handicapToilets = await prisma.toilet.findMany({
       where: { 
         deleted_at: null,
         is_handicap: true
       }
     });
     
-    const commerceToilets = await prisma.toilet.count({
+    const commerceToilets = await prisma.toilet.findMany({
       where: { 
         deleted_at: null,
         is_commerce: true
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     });
     
     // Count total active reviews
-    const totalReviews = await prisma.review.count({
+    const totalReviews = await prisma.review.findMany({
       where: { deleted_at: null }
     });
     
@@ -62,12 +62,13 @@ export async function GET(request: NextRequest) {
       : 0;
     
     // Count total active users
-    const totalUsers = await prisma.user.count({
+    const totalUsers = await prisma.user.findMany({
       where: { deleted_at: null }
     });
+
     
     // Count total active pictures
-    const totalPictures = await prisma.picture.count({
+    const totalPictures = await prisma.picture.findMany({
       where: { deleted_at: null }
     });
     
@@ -129,7 +130,7 @@ export async function GET(request: NextRequest) {
       },
       take: 5
     });
-    
+
     const popularToilets = mostReviewedToilets
       .map(toilet => {
         const avgToiletRating = toilet.Review.length 
@@ -154,9 +155,13 @@ export async function GET(request: NextRequest) {
     // Compile statistics
     const statistics = {
       toilets: {
-        total: totalToilets,
-        verified: verifiedToilets,
-        verificationRate: totalToilets > 0 ? (verifiedToilets / totalToilets) * 100 : 0,
+        total: totalToilets.length,
+        toilets: totalToilets,
+        verified: {
+          total: verifiedToilets.length,
+          toilets: verifiedToilets
+        },
+        verificationRate: totalToilets.length > 0 ? (verifiedToilets.length / totalToilets.length) * 100 : 0,
         byType: {
           free: freeToilets,
           public: publicToilets,
@@ -165,19 +170,20 @@ export async function GET(request: NextRequest) {
         }
       },
       reviews: {
-        total: totalReviews,
+        total: totalReviews.length,
         averageRating: parseFloat(avgRating.toFixed(2))
       },
       users: {
-        total: totalUsers
+        total: totalUsers.length,
+        users: totalUsers
       },
       pictures: {
-        total: totalPictures
+        total: totalPictures.length,
+        pictures: totalPictures
       },
       topRated: topToilets,
       mostReviewed: popularToilets
     };
-    
     return NextResponse.json(statistics);
   } catch (error) {
     console.error("Error fetching statistics:", error);

@@ -11,22 +11,6 @@ export async function POST(
   try {
     const id = params.id;
     
-    // Check authentication and admin role
-    const sessionResult = await auth.api.getSession({
-      headers: request.headers
-    });
-    
-    if (!sessionResult?.user) {
-      return createErrorResponse("Authentication required", undefined, 401);
-    }
-    
-    // Verify admin role
-    const userRoles = (sessionResult.user as any).roles;
-    if (userRoles !== 'admin' && !userRoles?.includes?.('admin')) {
-      return createErrorResponse("Admin access required to verify toilets", undefined, 403);
-    }
-    
-    // Check if toilet exists
     const existingToilet = await prisma.toilet.findUnique({
       where: { 
         id,

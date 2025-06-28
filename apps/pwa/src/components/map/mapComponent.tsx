@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import {
   PeebuddyMap,
   ToiletMarkerType,
   LocationButton,
   ZoomControls,
+  MapRouting,
 } from "@workspace/map";
 import { UserLocationMarker } from "@/components/localisation/userLocationMarker";
 import { useGeolocation } from "@/hooks/useGeolocalisation";
@@ -24,24 +26,33 @@ const toilets: ToiletMarkerType[] = [
 export default function MapComponent() {
   const { width, height } = useWindowSize();
   const { position: userLocation, error } = useGeolocation();
+  const [selectedToilet, setSelectedToilet] = useState<ToiletMarkerType | null>(
+    null
+  );
+
+  const handleToiletClick = (toilet: ToiletMarkerType) => {
+    setSelectedToilet(toilet);
+  };
+
+  const handleCloseToilet = () => {
+    setSelectedToilet(null);
+  };
 
   if (width === 0 || height === 0) {
     return null;
   }
 
-  // If permission is granted, display the map
   return (
     <>
       <PeebuddyMap
         style={{ width: width, height: height }}
         toilets={toilets}
-        onToiletClick={(toilet: ToiletMarkerType) =>
-          console.log("Toilette cliquée:", toilet)
-        }
+        onToiletClick={handleToiletClick}
       >
         {userLocation && <UserLocationMarker position={userLocation} />}
         <LocationButton />
         <ZoomControls />
+        <MapRouting selectedToilet={selectedToilet} />
       </PeebuddyMap>
 
       {/* Display errors if necessary*/}

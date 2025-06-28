@@ -18,5 +18,9 @@
   "packageManager": "pnpm@8.15.4",
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "@types/leaflet-routing-machine": "^3.2.8",
+    "leaflet-routing-machine": "^3.2.12"
   }
 }

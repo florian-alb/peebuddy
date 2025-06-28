@@ -1,5 +1,6 @@
 /* base styles */
 @import "leaflet/dist/leaflet.css";
+@import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 
 /* Forcer la carte à l'arrière-plan */
 .leaflet-container {
@@ -35,7 +36,7 @@
 
 /* Contrôles de la carte */
 .leaflet-control-container {
-  z-index: 0 !important;
+  display: none !important;
 }
 
 .leaflet-control-zoom {
@@ -128,4 +129,50 @@
   .leaflet-control-zoom a:hover {
     background: #4b5563 !important;
   }
+}
+
+/* Custom styles for routing */
+.leaflet-routing-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  padding: 10px;
+  min-width: 200px;
+}
+
+.leaflet-routing-container h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.leaflet-routing-alt {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.leaflet-routing-alt h3 {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 5px 0;
+  color: #666;
+}
+
+.leaflet-routing-alt tr {
+  border-bottom: 1px solid #eee;
+}
+
+.leaflet-routing-alt td {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.leaflet-routing-alt .leaflet-routing-alt-first {
+  background-color: #f8f9fa;
+}
+
+.leaflet-routing-alt .leaflet-routing-alt-hover {
+  background-color: #e9ecef;
 }

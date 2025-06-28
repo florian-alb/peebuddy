@@ -34,12 +34,12 @@ export const ZoomControls = () => {
   };
 
   return (
-    <div className="absolute top-4 left-4 z-[1000]">
-      <Button size="sm" variant="outline" onClick={zoomIn}>
-        <ZoomIn />
-      </Button>
+    <div className="absolute top-4 left-4 z-[1000] flex gap-2 flex-col">
       <Button size="sm" variant="outline" onClick={zoomOut}>
         <ZoomOut />
+      </Button>
+      <Button size="sm" variant="outline" onClick={zoomIn}>
+        <ZoomIn />
       </Button>
     </div>
   );

@@ -36,6 +36,7 @@ interface UserData {
     email: string;
     joinDate: string;
     contributions: number;
+    role: string;
 }
 
 interface StatsData {

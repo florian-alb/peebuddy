@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@workspace/ui/components/button";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { X } from "lucide-react";
 
 export function PWAInstallPrompt() {
   const { isInstallable, isInstalled, isIOS, installApp } = usePWAInstall();
@@ -31,7 +32,17 @@ export function PWAInstallPrompt() {
   // Show iOS instructions if user clicked install on iOS
   if (showIOSInstructions) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="fixed inset-0 bg-amber-100/80 flex items-center justify-center p-4 z-[9999]">
+        <div className="absolute top-4 right-4">
+          <Button
+            variant="default"
+            size="icon"
+            className="cursor-pointer hover:bg-amber-500 bg-amber-300"
+            onClick={handleCloseIOSInstructions}
+          >
+            <X className="w-6 h-6" />
+          </Button>
+        </div>
         <div className="bg-white rounded-lg p-6 max-w-sm w-full space-y-4">
           <div className="text-center">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">

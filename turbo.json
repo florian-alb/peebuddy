@@ -6,7 +6,15 @@
       "dependsOn": ["^build", "^db:generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["DATABASE_URL", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "ROBLOX_CLIENT_ID", "ROBLOX_CLIENT_SECRET", "BETTER_AUTH_SECRET"]
+      "env": [
+        "DATABASE_URL",
+        "GITHUB_CLIENT_ID",
+        "GITHUB_CLIENT_SECRET",
+        "ROBLOX_CLIENT_ID",
+        "ROBLOX_CLIENT_SECRET",
+        "BETTER_AUTH_SECRET",
+        "VAPID_PRIVATE_KEY"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -18,7 +26,15 @@
       "dependsOn": ["^db:generate"],
       "cache": false,
       "persistent": true,
-      "env": ["DATABASE_URL", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "ROBLOX_CLIENT_ID", "ROBLOX_CLIENT_SECRET", "BETTER_AUTH_SECRET"]
+      "env": [
+        "DATABASE_URL",
+        "GITHUB_CLIENT_ID",
+        "GITHUB_CLIENT_SECRET",
+        "ROBLOX_CLIENT_ID",
+        "ROBLOX_CLIENT_SECRET",
+        "BETTER_AUTH_SECRET",
+        "VAPID_PRIVATE_KEY"
+      ]
     },
     "db:generate": {
       "cache": false,

@@ -1,3 +1,5 @@
+import L from "leaflet";
+
 export { MapContainer } from "./components/MapContainer";
 export { ToiletMarker } from "./components/ToiletMarker";
 export { PeebuddyMap } from "./components/PeebuddyMap";
@@ -10,3 +12,5 @@ export type {
   ToiletMarkerType,
   MapContextType,
 } from "./types/types";
+export * from "react-leaflet";
+export { L };

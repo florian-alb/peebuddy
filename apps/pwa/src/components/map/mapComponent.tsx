@@ -34,10 +34,6 @@ export default function MapComponent() {
     setSelectedToilet(toilet);
   };
 
-  const handleCloseToilet = () => {
-    setSelectedToilet(null);
-  };
-
   if (width === 0 || height === 0) {
     return null;
   }

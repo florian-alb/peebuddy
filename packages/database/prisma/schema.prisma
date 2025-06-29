@@ -119,6 +119,7 @@ model Picture {
   updated_at DateTime? @db.Timestamp(6)
   created_at DateTime  @default(now()) @db.Timestamp(6)
   deleted_at DateTime? @db.Timestamp(6)
+  is_verified Boolean
   Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pictures_toilet_id_toilets_id_fk")
 }
 
@@ -131,6 +132,7 @@ model Review {
   updated_at DateTime? @db.Timestamp(6)
   created_at DateTime  @default(now()) @db.Timestamp(6)
   deleted_at DateTime? @db.Timestamp(6)
+  is_verified Boolean
   Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_toilet_id_toilets_id_fk")
   User       User?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_user_id_users_id_fk")
 }

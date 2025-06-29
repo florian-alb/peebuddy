@@ -84,39 +84,39 @@ export default function Auth({ providers }: { providers: string[] }) {
     return (
       <div className={"flex items-center justify-center min-h-screen"}>
         <div
-          cssName={
-            "animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent"
+          className={
+            "animate-spin h-10 w-10 border-4 border-amber-500 rounded-full border-t-transparent"
           }
         ></div>
-        <p className="ml-3">Loading...</p>
+        <p className="ml-3 text-amber-900">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className={"flex items-center justify-center min-h-screen bg-gray-50"}>
-      <div className={"bg-white p-8 rounded-lg shadow-lg max-w-md w-full"}>
-        <h1 className={"text-3xl font-bold text-center text-blue-600"}>
+    <div className={"flex items-center justify-center min-h-screen"}>
+      <div className={"bg-white p-8 rounded-lg shadow-lg max-w-md w-full border border-amber-200"}>
+        <h1 className={"text-3xl font-bold text-center text-amber-600"}>
           PeeBuddy
         </h1>
-        <p className={"text-center text-gray-600 mb-6"}>
+        <p className={"text-center text-amber-700 mb-6"}>
           Your personal bathroom finder
         </p>
 
         {session ? (
           <div className={"space-y-6"}>
             <div className={"text-center"}>
-              <h2 className="text-xl font-semibold">
+              <h2 className="text-xl font-semibold text-amber-900">
                 Welcome, {session.user.name || "User"}!
               </h2>
-              <p className="text-gray-600">
+              <p className="text-amber-700">
                 {session.user.email || "GitHub user"}
               </p>
             </div>
             <div className={"flex flex-col space-y-3"}>
               <button
                 className={
-                  "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors w-full"
+                  "bg-amber-500 hover:bg-amber-600 text-white py-2 px-4 rounded-md transition-colors w-full"
                 }
                 onClick={() => (window.location.href = "/dashboard")}
               >
@@ -124,7 +124,7 @@ export default function Auth({ providers }: { providers: string[] }) {
               </button>
               <button
                 className={
-                  "bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md transition-colors w-full"
+                  "bg-amber-100 hover:bg-amber-200 text-amber-800 py-2 px-4 rounded-md transition-colors w-full border border-amber-300"
                 }
                 onClick={signOut}
               >
@@ -134,7 +134,7 @@ export default function Auth({ providers }: { providers: string[] }) {
           </div>
         ) : (
           <div className={"space-y-6"}>
-            <p className={"text-center text-gray-700"}>
+            <p className={"text-center text-amber-700"}>
               Sign in to find and rate bathrooms near you
             </p>
             {
@@ -142,7 +142,7 @@ export default function Auth({ providers }: { providers: string[] }) {
                 <button
                   key={provider}
                   className={
-                    "flex items-center justify-center bg-gray-800 hover:bg-gray-900 text-white py-2 px-4 rounded-md transition-colors w-full gap-2"
+                    "flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white py-2 px-4 rounded-md transition-colors w-full gap-2 capitalize"
                   }
                   onClick={() => signIn(provider)}
                 >

@@ -29,18 +29,22 @@ export const useDirection = () => {
             profile: "mapbox/walking",
           }
         ),
-        waypoints: [
-          L.latLng(userLocation[0], userLocation[1]),
-          L.latLng(destination[0], destination[1]),
-        ],
+        plan: L.Routing.plan(
+          [
+            L.latLng(userLocation[0], userLocation[1]),
+            L.latLng(destination[0], destination[1]),
+          ],
+          {
+            createMarker: function () {
+              return false;
+            },
+          }
+        ),
         routeWhileDragging: false,
         showAlternatives: false,
         fitSelectedRoutes: false,
         addWaypoints: false,
         show: false,
-        createMarker: function () {
-          return null;
-        },
         lineOptions: {
           styles: [
             {

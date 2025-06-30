@@ -23,11 +23,5 @@ export const UserLocationMarker = ({
       })
   );
 
-  useEffect(() => {
-    if (map && position) {
-      map.flyToLocation(position[0], position[1], 15);
-    }
-  }, [map, position]);
-
   return <Marker position={position} icon={userIcon} />;
 };

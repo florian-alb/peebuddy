@@ -73,6 +73,11 @@ export default function MapComponent() {
         toilets={toilets}
         onToiletClick={handleToiletClick}
         showMarker={showMarker}
+        mapOptions={{
+          zoomControl: false,
+          doubleClickZoom: false,
+          attributionControl: false,
+        }}
       >
         {userLocation && <UserLocationMarker position={userLocation} />}
         <LocationButton />

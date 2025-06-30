@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouting } from "../hooks/useRouting";
+import { useDirection } from "../hooks/useDirection";
 import { ToiletMarkerType } from "../types/types";
 
 interface MapRoutingProps {
@@ -9,7 +9,7 @@ interface MapRoutingProps {
 }
 
 export const MapRouting = ({ selectedToilet }: MapRoutingProps) => {
-  const { calculateRoute } = useRouting();
+  const { calculateRoute } = useDirection();
 
   // Calculate route when toilet is selected
   useEffect(() => {

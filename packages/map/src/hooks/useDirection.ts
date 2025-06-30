@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useMap } from "./useMap";
 import L from "leaflet";
 import "leaflet-routing-machine";
 
-export const useRouting = () => {
+export const useDirection = () => {
   const { map, userLocation } = useMap();
+  const currentRouteRef = useRef<L.Routing.Control | null>(null);
 
   // Calculate route to destination
   const calculateRoute = useCallback(
@@ -15,24 +16,31 @@ export const useRouting = () => {
         return;
       }
 
-      // Clear any existing routes
-      map.eachLayer((layer) => {
-        if (layer instanceof L.Routing.Control) {
-          map.removeControl(layer);
-        }
-      });
+      // Clear previous route if exists
+      if (currentRouteRef.current) {
+        map.removeControl(currentRouteRef.current);
+        currentRouteRef.current = null;
+      }
 
-      // Create and add routing control (no UI, only the route line)
       const routingControl = L.Routing.control({
+        router: L.Routing.mapbox(
+          process.env.NEXT_PUBLIC_MAPBOX_API_KEY as string,
+          {
+            profile: "mapbox/walking",
+          }
+        ),
         waypoints: [
           L.latLng(userLocation[0], userLocation[1]),
           L.latLng(destination[0], destination[1]),
         ],
         routeWhileDragging: false,
         showAlternatives: false,
-        fitSelectedRoutes: true,
+        fitSelectedRoutes: false,
         addWaypoints: false,
-        show: false, // Hide the default UI
+        show: false,
+        createMarker: function () {
+          return null;
+        },
         lineOptions: {
           styles: [
             {
@@ -47,6 +55,7 @@ export const useRouting = () => {
       });
 
       routingControl.addTo(map);
+      currentRouteRef.current = routingControl;
     },
     [map, userLocation]
   );

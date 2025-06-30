@@ -21,6 +21,7 @@ interface PeebuddyMapProps extends MapComponentProps {
   style?: React.CSSProperties;
   mapOptions?: MapOptions;
   children?: React.ReactNode;
+  showMarker?: boolean | ((toilet: ToiletMarkerType) => boolean);
 }
 
 export const PeebuddyMap = ({
@@ -32,6 +33,7 @@ export const PeebuddyMap = ({
   style,
   mapOptions,
   children,
+  showMarker = true,
 }: PeebuddyMapProps) => {
   return (
     <div className={`relative ${className || "h-full w-full"}`} style={style}>
@@ -45,13 +47,16 @@ export const PeebuddyMap = ({
         <TileLayer attribution={DEFAULT_ATTRIBUTION} url={DEFAULT_TILE_LAYER} />
 
         {/* Toilet markers */}
-        {toilets.map((toilet) => (
-          <ToiletMarker
-            key={toilet.id}
-            toilet={toilet}
-            onClick={onToiletClick}
-          />
-        ))}
+        {toilets.map(
+          (toilet) =>
+            showMarker && (
+              <ToiletMarker
+                key={toilet.id}
+                toilet={toilet}
+                onClick={onToiletClick}
+              />
+            )
+        )}
 
         {children}
       </MapContainer>

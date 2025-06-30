@@ -1,7 +1,7 @@
 import { LatLngExpression, Icon } from "leaflet";
 
 // default tile layer
-export const DEFAULT_TILE_LAYER = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmluamF3aWxsNTQzIiwiYSI6ImNsZDRidWdrNjBvbDczcW9jajU5c3UxdXAifQ._jM-ztlL3-V9_0WjlFB01A`;
+export const DEFAULT_TILE_LAYER = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_API_KEY}`;
 export const DEFAULT_ATTRIBUTION = "© OpenStreetMap contributors";
 
 // default position (Toulouse)

@@ -1,16 +1,16 @@
 "use client";
 
 import { Marker } from "react-leaflet";
-import { ToiletMarkerType } from "../types/types";
+import { Toilet } from "@workspace/db";
 import { createToiletIcon } from "../lib/utils";
 
 interface ToiletMarkerProps {
-  toilet: ToiletMarkerType;
-  onClick?: (toilet: ToiletMarkerType) => void;
+  toilet: Toilet;
+  onClick?: (toilet: Toilet) => void;
 }
 
 export const ToiletMarker = ({ toilet, onClick }: ToiletMarkerProps) => {
-  const icon = createToiletIcon(toilet.isVerified);
+  const icon = createToiletIcon(toilet.is_verified);
 
   const handleClick = () => {
     if (onClick) {
@@ -18,9 +18,13 @@ export const ToiletMarker = ({ toilet, onClick }: ToiletMarkerProps) => {
     }
   };
 
+  console.log("toilet:", toilet);
+  console.log("toilet latitue type:", typeof toilet.latitude);
+  console.log("toilet longitude type:", typeof toilet.longitude);
+
   return (
     <Marker
-      position={toilet.position}
+      position={[Number(toilet.latitude), Number(toilet.longitude)]}
       icon={icon}
       eventHandlers={{
         click: handleClick,

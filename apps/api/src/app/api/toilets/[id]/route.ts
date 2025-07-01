@@ -1,6 +1,6 @@
-import { prisma } from "database";
+import { prisma } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
-import { ToiletWithRating, UpdateToiletDto } from "../../../../lib/types";
+import { ToiletWithRating, UpdateToiletDto } from "@/lib/types";
 
 // GET a specific toilet by ID
 export async function GET(
@@ -9,11 +9,11 @@ export async function GET(
 ) {
   try {
     const id = params.id;
-    
+
     const toilet = await prisma.toilet.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
       include: {
         Picture: {
@@ -26,31 +26,31 @@ export async function GET(
               select: {
                 name: true,
                 image: true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
       },
     });
-    
+
     if (!toilet) {
-      return NextResponse.json(
-        { error: "Toilet not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Toilet not found" }, { status: 404 });
     }
-    
+
     // Calculate average rating
-    const avgRating = toilet.Review.length 
-      ? toilet.Review.reduce((sum: number, review: { rating: number }) => sum + review.rating, 0) / toilet.Review.length
+    const avgRating = toilet.Review.length
+      ? toilet.Review.reduce(
+          (sum: number, review: { rating: number }) => sum + review.rating,
+          0
+        ) / toilet.Review.length
       : null;
-      
+
     const toiletWithRating: ToiletWithRating = {
       ...toilet,
       avgRating,
       reviewCount: toilet.Review.length,
     };
-    
+
     return NextResponse.json(toiletWithRating);
   } catch (error) {
     console.error("Error fetching toilet:", error);
@@ -68,38 +68,40 @@ export async function PUT(
 ) {
   try {
     const id = params.id;
-    const body = await request.json() as UpdateToiletDto;
-    
+    const body = (await request.json()) as UpdateToiletDto;
+
     // Check if toilet exists
     const existingToilet = await prisma.toilet.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!existingToilet) {
-      return NextResponse.json(
-        { error: "Toilet not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Toilet not found" }, { status: 404 });
     }
-    
+
     // Update toilet
     const updatedToilet = await prisma.toilet.update({
       where: { id },
       data: {
-        longitude: body.longitude !== undefined ? body.longitude : undefined,
-        latitude: body.latitude !== undefined ? body.latitude : undefined,
+        longitude:
+          body.longitude !== undefined ? body.longitude.toString() : undefined,
+        latitude:
+          body.latitude !== undefined ? body.latitude.toString() : undefined,
         is_free: body.is_free !== undefined ? body.is_free : undefined,
         is_public: body.is_public !== undefined ? body.is_public : undefined,
-        is_handicap: body.is_handicap !== undefined ? body.is_handicap : undefined,
-        is_commerce: body.is_commerce !== undefined ? body.is_commerce : undefined,
-        is_verified: body.is_verified !== undefined ? body.is_verified : undefined,
+        is_handicap:
+          body.is_handicap !== undefined ? body.is_handicap : undefined,
+        is_commerce:
+          body.is_commerce !== undefined ? body.is_commerce : undefined,
+        is_verified:
+          body.is_verified !== undefined ? body.is_verified : undefined,
         updated_at: new Date(),
       },
     });
-    
+
     return NextResponse.json(updatedToilet);
   } catch (error) {
     console.error("Error updating toilet:", error);
@@ -117,22 +119,19 @@ export async function DELETE(
 ) {
   try {
     const id = params.id;
-    
+
     // Check if toilet exists
     const existingToilet = await prisma.toilet.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!existingToilet) {
-      return NextResponse.json(
-        { error: "Toilet not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Toilet not found" }, { status: 404 });
     }
-    
+
     // Soft delete the toilet
     const deletedToilet = await prisma.toilet.update({
       where: { id },
@@ -140,7 +139,7 @@ export async function DELETE(
         deleted_at: new Date(),
       },
     });
-    
+
     return NextResponse.json({ message: "Toilet deleted successfully" });
   } catch (error) {
     console.error("Error deleting toilet:", error);

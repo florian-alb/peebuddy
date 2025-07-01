@@ -8,20 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// * The User model represents a user in the system.
-/// * It has the following properties:
-/// * - id: A unique identifier for the user.
-/// * - name: The user's name.
-/// * - email: The user's email address.
-/// * - emailVerified: Whether the user's email address has been verified.
-/// * - image: The user's profile image.
-/// * - createdAt: The date and time the user was created.
-/// * - updatedAt: The date and time the user was last updated.
-/// * - deletedAt: The date and time the user was deleted.
-/// * - accounts: The user's accounts.
-/// * - sessions: The user's sessions.
-/// * - role: The user's role.
-/// * - Review: The user's reviews.
 model User {
   id            String    @id
   name          String
@@ -91,8 +77,8 @@ model Verification {
 
 model Toilet {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  longitude   Decimal   @db.Decimal
-  latitude    Decimal   @db.Decimal
+  longitude   String
+  latitude    String
   is_free     Boolean   @default(false)
   is_public   Boolean   @default(false)
   is_handicap Boolean   @default(false)

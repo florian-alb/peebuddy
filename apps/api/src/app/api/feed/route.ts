@@ -27,22 +27,22 @@ export async function GET(request: NextRequest) {
     for (const toiletData of toilets) {
       try {
         // Vérifier si la toilette existe déjà (par coordonnées)
-        // const existingToilet = await prisma.toilet.findFirst({
-        //   where: {
-        //     latitude: toiletData.latitude,
-        //     longitude: toiletData.longitude,
-        //     deleted_at: null,
-        //   },
-        // });
+        const existingToilet = await prisma.toilet.findFirst({
+          where: {
+            latitude: toiletData.latitude,
+            longitude: toiletData.longitude,
+            deleted_at: null,
+          },
+        });
 
-        // if (existingToilet) {
-        //   results.details.push({
-        //     coordinates: `${toiletData.latitude}, ${toiletData.longitude}`,
-        //     status: "skipped",
-        //     reason: "Toilette déjà existante",
-        //   });
-        //   continue;
-        // }
+        if (existingToilet) {
+          results.details.push({
+            coordinates: `${toiletData.latitude}, ${toiletData.longitude}`,
+            status: "skipped",
+            reason: "Toilette déjà existante",
+          });
+          continue;
+        }
 
         // Créer la toilette
         const newToilet = await prisma.toilet.create({

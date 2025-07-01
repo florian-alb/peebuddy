@@ -5,12 +5,10 @@ import { useMap, Marker, L } from "@workspace/map";
 
 interface UserLocationMarkerProps {
   position: [number, number];
-  accuracy?: number;
 }
 
 export const UserLocationMarker = ({
   position,
-  accuracy,
 }: UserLocationMarkerProps) => {
   const map = useMap();
   const [userIcon] = useState(

@@ -1,9 +1,10 @@
+
+
 import { prisma } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@workspace/auth";
 import { createErrorResponse } from "@/lib/api-utils";
 
-// POST to verify a toilet
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -11,46 +12,30 @@ export async function POST(
   try {
     const id = params.id;
     
-    // Check authentication and admin role
-    const sessionResult = await auth.api.getSession({
-      headers: request.headers
-    });
-    
-    if (!sessionResult?.user) {
-      return createErrorResponse("Authentication required", undefined, 401);
-    }
-    
-    // Verify admin role
-    const userRoles = (sessionResult.user as any).roles;
-    if (userRoles !== 'admin' && !userRoles?.includes?.('admin')) {
-      return createErrorResponse("Admin access required to verify toilets", undefined, 403);
-    }
-    
-    // Check if toilet exists
-    const existingToilet = await prisma.toilet.findUnique({
+    const existingReview = await prisma.review.findUnique({
       where: { 
         id,
         deleted_at: null
       },
     });
     
-    if (!existingToilet) {
+    if (!existingReview) {
       return NextResponse.json(
-        { error: "Toilet not found" },
+        { error: "Review not found" },
         { status: 404 }
       );
     }
     
-    // If toilet is already verified, return success
-    if (existingToilet.is_verified) {
+    // If review is already verified, return success
+    if (existingReview.is_verified) {
       return NextResponse.json({
-        message: "Toilet is already verified",
-        toilet: existingToilet
+        message: "Review is already verified",
+        review: existingReview
       });
     }
     
-    // Update toilet to mark as verified
-    const verifiedToilet = await prisma.toilet.update({
+    // Update review to mark as verified
+    const verifiedReview = await prisma.review.update({
       where: { id },
       data: {
         is_verified: true,
@@ -59,19 +44,19 @@ export async function POST(
     });
     
     return NextResponse.json({
-      message: "Toilet verified successfully",
-      toilet: verifiedToilet
+      message: "Review verified successfully",
+      review: verifiedReview
     });
   } catch (error) {
-    console.error("Error verifying toilet:", error);
+    console.error("Error verifying review:", error);
     return NextResponse.json(
-      { error: "Failed to verify toilet" },
+      { error: "Failed to verify review" },
       { status: 500 }
     );
   }
 }
 
-// DELETE to remove verification from a toilet
+// DELETE to remove verification from a review
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -94,31 +79,31 @@ export async function DELETE(
       return createErrorResponse("Admin access required to remove verification", undefined, 403);
     }
     
-    // Check if toilet exists
-    const existingToilet = await prisma.toilet.findUnique({
+    // Check if review exists
+    const existingReview = await prisma.review.findUnique({
       where: { 
         id,
         deleted_at: null
       },
     });
     
-    if (!existingToilet) {
+    if (!existingReview) {
       return NextResponse.json(
-        { error: "Toilet not found" },
+        { error: "Review not found" },
         { status: 404 }
       );
     }
     
-    // If toilet is not verified, return success
-    if (!existingToilet.is_verified) {
+    // If review is not verified, return success
+    if (!existingReview.is_verified) {
       return NextResponse.json({
-        message: "Toilet is already unverified",
-        toilet: existingToilet
+        message: "Review is already unverified",
+        review: existingReview
       });
     }
     
-    // Update toilet to mark as unverified
-    const unverifiedToilet = await prisma.toilet.update({
+    // Update review to mark as unverified
+    const unverifiedReview = await prisma.review.update({
       where: { id },
       data: {
         is_verified: false,
@@ -127,13 +112,13 @@ export async function DELETE(
     });
     
     return NextResponse.json({
-      message: "Toilet verification removed successfully",
-      toilet: unverifiedToilet
+      message: "Review verified successfully",
+      review: unverifiedReview
     });
   } catch (error) {
-    console.error("Error removing toilet verification:", error);
+    console.error("Error verifying review:", error);
     return NextResponse.json(
-      { error: "Failed to remove toilet verification" },
+      { error: "Failed to verify review" },
       { status: 500 }
     );
   }

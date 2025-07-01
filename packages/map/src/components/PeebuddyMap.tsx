@@ -36,7 +36,6 @@ export const PeebuddyMap = ({
   children,
   showMarker = true,
 }: PeebuddyMapProps) => {
-
   return (
     <div className={`relative ${className || "h-full w-full"}`} style={style}>
       <MapContainer

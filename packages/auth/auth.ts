@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@workspace/db";
-import { customSession } from "better-auth/plugins";
+import { bearer, customSession } from "better-auth/plugins";
 
 async function findUserRoles(userId: string) {
     const user = await prisma.user.findUnique({
@@ -29,6 +29,7 @@ export const auth = betterAuth({
             session
         };
     }),
+    bearer()  
 ],  
   trustedOrigins: ["http://localhost:3001/*", "http://localhost:3000/*", "http://localhost:3000"],
   socialProviders: {

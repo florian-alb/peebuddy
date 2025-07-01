@@ -8,27 +8,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Roles {
-  admin
-  user
-}
-
-  /**
-   * The User model represents a user in the system.
-   * It has the following properties:
-   * - id: A unique identifier for the user.
-   * - name: The user's name.
-   * - email: The user's email address.
-   * - emailVerified: Whether the user's email address has been verified.
-   * - image: The user's profile image.
-   * - createdAt: The date and time the user was created.
-   * - updatedAt: The date and time the user was last updated.
-   * - deletedAt: The date and time the user was deleted.
-   * - accounts: The user's accounts.
-   * - sessions: The user's sessions.
-   * - role: The user's role.
-   * - Review: The user's reviews.
-   */
+/// *
+/// * The User model represents a user in the system.
+/// * It has the following properties:
+/// * - id: A unique identifier for the user.
+/// * - name: The user's name.
+/// * - email: The user's email address.
+/// * - emailVerified: Whether the user's email address has been verified.
+/// * - image: The user's profile image.
+/// * - createdAt: The date and time the user was created.
+/// * - updatedAt: The date and time the user was last updated.
+/// * - deletedAt: The date and time the user was deleted.
+/// * - accounts: The user's accounts.
+/// * - sessions: The user's sessions.
+/// * - role: The user's role.
+/// * - Review: The user's reviews.
 model User {
   id            String    @id
   name          String
@@ -41,10 +35,11 @@ model User {
   created_at    DateTime  @default(now()) @db.Timestamp(6)
   updated_at    DateTime? @db.Timestamp(6)
   deleted_at    DateTime? @db.Timestamp(6)
+  role          Roles?    @default(user)
+  Review        Review[]
   accounts      Account[]
   sessions      Session[]
-  role          Roles? @default(user)
-  Review        Review[]
+
   @@map("user")
 }
 
@@ -99,11 +94,11 @@ model Toilet {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   longitude   Decimal   @db.Decimal
   latitude    Decimal   @db.Decimal
-  is_free     Boolean
-  is_public   Boolean
-  is_handicap Boolean
-  is_commerce Boolean
-  is_verified Boolean
+  is_free     Boolean   @default(false)
+  is_public   Boolean   @default(false)
+  is_handicap Boolean   @default(false)
+  is_commerce Boolean   @default(false)
+  is_verified Boolean   @default(false)
   updated_at  DateTime? @db.Timestamp(6)
   created_at  DateTime  @default(now()) @db.Timestamp(6)
   deleted_at  DateTime? @db.Timestamp(6)
@@ -119,7 +114,7 @@ model Picture {
   updated_at DateTime? @db.Timestamp(6)
   created_at DateTime  @default(now()) @db.Timestamp(6)
   deleted_at DateTime? @db.Timestamp(6)
-  is_verified Boolean
+  is_verified Boolean   @default(false)
   Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pictures_toilet_id_toilets_id_fk")
 }
 
@@ -128,11 +123,16 @@ model Review {
   rating     Int       @db.SmallInt
   comment    String?
   toilet_id  String?   @db.Uuid
-  user_id    String?                             // plain-text foreign key
+  user_id    String?
   updated_at DateTime? @db.Timestamp(6)
   created_at DateTime  @default(now()) @db.Timestamp(6)
   deleted_at DateTime? @db.Timestamp(6)
-  is_verified Boolean
+  is_verified Boolean   @default(false)
   Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_toilet_id_toilets_id_fk")
   User       User?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_user_id_users_id_fk")
+}
+
+enum Roles {
+  admin
+  user
 }

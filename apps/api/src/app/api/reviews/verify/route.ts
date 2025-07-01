@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@workspace/auth";
 import { createErrorResponse } from "@/lib/api-utils";
 
-// POST to verify a review
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }

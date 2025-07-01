@@ -9,7 +9,7 @@ import { Input } from "@workspace/ui/components/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select";
-import { MapPin, Users, CalendarPlus, Search, Filter, Eye, Check, X, Image, RefreshCw, Trash } from "lucide-react";
+import { MapPin, Users, CalendarPlus, Search, Filter, Eye, Check, X, Image, RefreshCw, Trash, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { AlertCircle } from "lucide-react";
@@ -65,6 +65,10 @@ export default function Dashboard() {
     const [toiletsData, setToiletsData] = useState<ToiletData[]>([]);
     const [picturesData, setPicturesData] = useState<PictureData[]>([]);
     const [usersData, setUsersData] = useState<UserData[]>([]);
+    
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(15);
 
     const [token, setToken] = useState<string>("");
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -99,7 +103,6 @@ export default function Dashboard() {
             if (!response.ok) {
                 throw new Error(`API responded with status: ${response.status}`);
             }
-            const data = await response.json();
             fetchStats();
         } catch (error) {
             console.error(error);
@@ -118,7 +121,6 @@ export default function Dashboard() {
             if (!response.ok) {
                 throw new Error(`API responded with status: ${response.status}`);
             }
-            const data = await response.json();
             fetchStats();
         } catch (error) {
             console.error(error);
@@ -254,9 +256,37 @@ export default function Dashboard() {
         });
     };
     
+    // Get paginated data
+    const getPaginatedData = <T extends Record<string, any>>(data: T[], page: number, itemsPerPage: number): T[] => {
+        const startIndex = (page - 1) * itemsPerPage;
+        return data.slice(startIndex, startIndex + itemsPerPage);
+    };
+    
+    // Reset to first page when changing filters or tabs
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, statusFilter, activeTab]);
+    
     const filteredToilets = filterData(toiletsData, searchQuery, statusFilter);
     const filteredPictures = filterData(picturesData, searchQuery, statusFilter);
     const filteredUsers = filterData(usersData, searchQuery, "all");
+    
+    // Get current page data
+    const currentToilets = getPaginatedData(filteredToilets, currentPage, itemsPerPage);
+    const currentPictures = getPaginatedData(filteredPictures, currentPage, itemsPerPage);
+    const currentUsers = getPaginatedData(filteredUsers, currentPage, itemsPerPage);
+    
+    // Calculate total pages for current active tab
+    const totalPages = {
+        toilets: Math.ceil(filteredToilets.length / itemsPerPage),
+        pictures: Math.ceil(filteredPictures.length / itemsPerPage),
+        users: Math.ceil(filteredUsers.length / itemsPerPage)
+    };
+    
+    // Handle page change
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
     // Show loading or error states for session
     if (sessionLoading) {
         return (
@@ -454,7 +484,14 @@ export default function Dashboard() {
                                     className="flex-1 rounded-none data-[state=active]:bg-white data-[state=active]:text-amber-800 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-500"
                                 >
                                     <Image className="mr-2 h-4 w-4" />
-                                    Pictures to Verify
+                                    Pictures
+                                </TabsTrigger>
+                                <TabsTrigger 
+                                    value="reviews" 
+                                    className="flex-1 rounded-none data-[state=active]:bg-white data-[state=active]:text-amber-800 data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-amber-500"
+                                >
+                                    <Star className="mr-2 h-4 w-4" />
+                                    Reviews
                                 </TabsTrigger>
                                 <TabsTrigger 
                                     value="users" 
@@ -493,8 +530,8 @@ export default function Dashboard() {
                                                     Error loading data. Please try again.
                                                 </TableCell>
                                             </TableRow>
-                                        ) : filteredToilets.length > 0 ? (
-                                            filteredToilets.map((toilet) => (
+                                        ) : currentToilets.length > 0 ? (
+                                            currentToilets.map((toilet) => (
                                                 <TableRow key={toilet.id}>
                                                     <TableCell className="font-medium">{toilet.id}</TableCell>
                                                     <TableCell>{toilet.name}</TableCell>
@@ -542,6 +579,50 @@ export default function Dashboard() {
                                         )}
                                     </TableBody>
                                 </Table>
+                                {filteredToilets.length > itemsPerPage && (
+                                    <div className="flex justify-center items-center p-4 border-t border-amber-200">
+                                        <div className="flex items-center gap-2">
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                                className="border-amber-200 hover:bg-amber-100"
+                                            >
+                                                Previous
+                                            </Button>
+                                            
+                                            <div className="flex items-center gap-1">
+                                                {Array.from({ length: totalPages.toilets }, (_, i) => i + 1).map((page) => (
+                                                    <Button
+                                                        key={page}
+                                                        variant={currentPage === page ? "default" : "outline"}
+                                                        size="sm"
+                                                        onClick={() => handlePageChange(page)}
+                                                        className={currentPage === page ? 
+                                                            "bg-amber-500 hover:bg-amber-600" : 
+                                                            "border-amber-200 hover:bg-amber-100"}
+                                                    >
+                                                        {page}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                            
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages.toilets}
+                                                className="border-amber-200 hover:bg-amber-100"
+                                            >
+                                                Next
+                                            </Button>
+                                        </div>
+                                        <div className="text-sm text-gray-500 ml-4">
+                                            Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filteredToilets.length)} of {filteredToilets.length}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </TabsContent>
                         
@@ -571,8 +652,8 @@ export default function Dashboard() {
                                                     Error loading data. Please try again.
                                                 </TableCell>
                                             </TableRow>
-                                        ) : filteredPictures.length > 0 ? (
-                                            filteredPictures.map((picture) => (
+                                        ) : currentPictures.length > 0 ? (
+                                            currentPictures.map((picture) => (
                                                 <TableRow key={picture.id}>
                                                     <TableCell className="font-medium">{picture.id}</TableCell>
                                                     <TableCell>{picture.toiletId}</TableCell>
@@ -610,6 +691,50 @@ export default function Dashboard() {
                                         )}
                                     </TableBody>
                                 </Table>
+                                {filteredPictures.length > itemsPerPage && (
+                                    <div className="flex justify-center items-center p-4 border-t border-amber-200">
+                                        <div className="flex items-center gap-2">
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                                className="border-amber-200 hover:bg-amber-100"
+                                            >
+                                                Previous
+                                            </Button>
+                                            
+                                            <div className="flex items-center gap-1">
+                                                {Array.from({ length: totalPages.pictures }, (_, i) => i + 1).map((page) => (
+                                                    <Button
+                                                        key={page}
+                                                        variant={currentPage === page ? "default" : "outline"}
+                                                        size="sm"
+                                                        onClick={() => handlePageChange(page)}
+                                                        className={currentPage === page ? 
+                                                            "bg-amber-500 hover:bg-amber-600" : 
+                                                            "border-amber-200 hover:bg-amber-100"}
+                                                    >
+                                                        {page}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                            
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages.pictures}
+                                                className="border-amber-200 hover:bg-amber-100"
+                                            >
+                                                Next
+                                            </Button>
+                                        </div>
+                                        <div className="text-sm text-gray-500 ml-4">
+                                            Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filteredPictures.length)} of {filteredPictures.length}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </TabsContent>
                         
@@ -638,8 +763,8 @@ export default function Dashboard() {
                                                     Error loading data. Please try again.
                                                 </TableCell>
                                             </TableRow>
-                                        ) : filteredUsers.length > 0 ? (
-                                            filteredUsers.map((user) => (
+                                        ) : currentUsers.length > 0 ? (
+                                            currentUsers.map((user) => (
                                                 <TableRow key={user.id}>
                                                     <TableCell className="font-medium">{user.id}</TableCell>
                                                     <TableCell>{user.name}</TableCell>
@@ -671,6 +796,50 @@ export default function Dashboard() {
                                         )}
                                     </TableBody>
                                 </Table>
+                                {filteredUsers.length > itemsPerPage && (
+                                    <div className="flex justify-center items-center p-4 border-t border-amber-200">
+                                        <div className="flex items-center gap-2">
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                                className="border-amber-200 hover:bg-amber-100"
+                                            >
+                                                Previous
+                                            </Button>
+                                            
+                                            <div className="flex items-center gap-1">
+                                                {Array.from({ length: totalPages.users }, (_, i) => i + 1).map((page) => (
+                                                    <Button
+                                                        key={page}
+                                                        variant={currentPage === page ? "default" : "outline"}
+                                                        size="sm"
+                                                        onClick={() => handlePageChange(page)}
+                                                        className={currentPage === page ? 
+                                                            "bg-amber-500 hover:bg-amber-600" : 
+                                                            "border-amber-200 hover:bg-amber-100"}
+                                                    >
+                                                        {page}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                            
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages.users}
+                                                className="border-amber-200 hover:bg-amber-100"
+                                            >
+                                                Next
+                                            </Button>
+                                        </div>
+                                        <div className="text-sm text-gray-500 ml-4">
+                                            Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </TabsContent>
                     </Tabs>

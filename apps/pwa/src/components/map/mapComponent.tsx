@@ -86,8 +86,6 @@ export default function MapComponent() {
     return null;
   }
 
-  console.log("toilets", toilets);
-
   return (
     <>
       <div

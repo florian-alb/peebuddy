@@ -31,10 +31,10 @@ export interface MapContainerProps {
 export interface ToiletMarkerType {
   id: string;
   position: LatLngExpression;
-  name?: string;
-  address?: string;
+  name: string;
+  address: string;
   rating?: number;
-  isVerified?: boolean;
+  isVerified: boolean;
 }
 
 export interface MapContextType {

@@ -1,50 +1,71 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
+
 import { useWindowSize } from "@/hooks/useWindowSize";
-import {
-  PeebuddyMap,
-  LocationButton,
-  ZoomControls,
-  MapRouting,
-} from "@workspace/map";
-import { UserLocationMarker } from "@/components/localisation/userLocationMarker";
 import { useGeolocation } from "@/hooks/useGeolocalisation";
-import { findNearestToilet } from "@/lib/utils";
-import { ToiletInfo } from "@/components/infos/ToiletInfo";
+
 import { Toilet } from "@workspace/db";
+
+import { UserLocationMarker } from "@/components/localisation/userLocationMarker";
+import { ToiletInfo } from "@/components/infos/ToiletInfo";
+
+import {
+  DEFAULT_ATTRIBUTION,
+  DEFAULT_CENTER,
+  DEFAULT_TILE_LAYER,
+  DEFAULT_ZOOM,
+  findNearestToilet,
+} from "@/lib/utils";
+
+import { LatLngLiteral } from "leaflet";
+import { MapCenterListener } from "./mapCenterListener";
+import { LocationButton, ZoomControls } from "./mapControls";
+import { ToiletMarker } from "./toiletMarker";
+import { MapRouting } from "./mapRouting";
 
 export default function MapComponent() {
   const { width, height } = useWindowSize();
   const { position: userLocation, error } = useGeolocation();
   const [selectedToilet, setSelectedToilet] = useState<Toilet | null>(null);
-
   const [toilets, setToilets] = useState<Toilet[]>([]);
+  const [mapCenter, setMapCenter] = useState<LatLngLiteral>(DEFAULT_CENTER);
 
   useEffect(() => {
-    if (!userLocation) return;
+    if (!mapCenter) return;
 
     const fetchToilets = async () => {
       try {
-        const toilets = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/toilets/nearby?latitude=${userLocation[0]}&longitude=${userLocation[1]}`
+        const toiletsResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/toilets/nearby?latitude=${mapCenter.lat}&longitude=${mapCenter.lng}`
         );
-        const { data } = await toilets.json();
-        setToilets(data);
+        const { data } = await toiletsResponse.json();
+
+        // i need to add toilets to toilets array if they are not already in the array
+        const newToilets = data.filter(
+          (toilet: Toilet) => !toilets.some((t) => t.id === toilet.id)
+        );
+
+        setToilets([...toilets, ...newToilets]);
       } catch (error) {
         console.error("Erreur lors de la récupération des toilettes:", error);
       }
     };
 
     fetchToilets();
-  }, [userLocation]);
+  }, [mapCenter]);
 
   // Auto-select nearest toilet when user location is available
   useEffect(() => {
     if (userLocation && !selectedToilet) {
-      const nearestToilet = findNearestToilet(userLocation, toilets);
-      if (nearestToilet) {
-        setSelectedToilet(nearestToilet);
+      try {
+        const nearestToilet = findNearestToilet(userLocation, toilets);
+        if (nearestToilet) {
+          setSelectedToilet(nearestToilet);
+        }
+      } catch (error) {
+        console.error("Impossible de trouver de toilette proche.");
       }
     }
   }, [userLocation, selectedToilet]);
@@ -53,41 +74,73 @@ export default function MapComponent() {
     setSelectedToilet(toilet);
   };
 
-  const handleCloseToilet = () => {
-    setSelectedToilet(null);
+  const handleMapCenterChange = (center: LatLngLiteral) => {
+    setMapCenter(center);
   };
 
   function showMarker(toilet: Toilet) {
-    return toilet.is_verified;
+    return !toilet.is_verified;
   }
 
   if (width === 0 || height === 0) {
     return null;
   }
 
+  console.log("toilets", toilets);
+
   return (
     <>
-      <PeebuddyMap
+      <div
+        className="relative h-full w-full"
         style={{ width: width, height: height }}
-        toilets={toilets}
-        onToiletClick={handleToiletClick}
-        showMarker={showMarker}
-        mapOptions={{
-          zoomControl: false,
-          doubleClickZoom: false,
-          attributionControl: false,
-        }}
       >
-        {userLocation && <UserLocationMarker position={userLocation} />}
-        <LocationButton />
-        <ZoomControls />
-        <MapRouting selectedToilet={selectedToilet} />
-      </PeebuddyMap>
+        <MapContainer
+          center={DEFAULT_CENTER}
+          zoom={DEFAULT_ZOOM}
+          scrollWheelZoom={true}
+          doubleClickZoom={false}
+          attributionControl={false}
+          zoomControl={false}
+          style={{ width: "100%", height: "100%" }}
+        >
+          <TileLayer
+            attribution={DEFAULT_ATTRIBUTION}
+            url={DEFAULT_TILE_LAYER}
+          />
+
+          <MapCenterListener onCenterChange={handleMapCenterChange} />
+
+          {/* Toilet markers */}
+          {toilets.length > 0 &&
+            toilets.map(
+              (toilet) =>
+                showMarker(toilet) && (
+                  <ToiletMarker
+                    key={toilet.id}
+                    toilet={toilet}
+                    onClick={() => handleToiletClick(toilet)}
+                  />
+                )
+            )}
+
+          {userLocation && <UserLocationMarker position={userLocation} />}
+          <LocationButton />
+          <ZoomControls />
+          {selectedToilet && (
+            <MapRouting
+              selectedToilet={{
+                position: [
+                  parseFloat(selectedToilet.latitude),
+                  parseFloat(selectedToilet.longitude),
+                ],
+              }}
+            />
+          )}
+        </MapContainer>
+      </div>
 
       {/* Display toilet info */}
-      {selectedToilet && (
-        <ToiletInfo toilet={selectedToilet} onClose={handleCloseToilet} />
-      )}
+      {selectedToilet && <ToiletInfo toilet={selectedToilet} />}
 
       {/* Display errors if necessary*/}
       {error && (

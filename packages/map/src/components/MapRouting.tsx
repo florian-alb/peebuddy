@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 import { useDirection } from "../hooks/useDirection";
-import { MarkerProps } from "../types/types";
+import { ToiletMarkerType } from "../types/types";
 
 interface MapRoutingProps {
-  selectedToilet: MarkerProps | null;
+  selectedToilet: ToiletMarkerType | null;
 }
 
 export const MapRouting = ({ selectedToilet }: MapRoutingProps) => {

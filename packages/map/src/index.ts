@@ -7,6 +7,6 @@ export { LocationButton, ZoomControls } from "./components/MapControls";
 export { MapRouting } from "./components/MapRouting";
 export { useMap } from "./hooks/useMap";
 export { useDirection } from "./hooks/useDirection";
-export type { MapComponentProps } from "./types/types";
+export type { ToiletMarkerType, MapComponentProps } from "./types/types";
 export * from "react-leaflet";
 export { L };

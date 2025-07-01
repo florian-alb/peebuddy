@@ -4,8 +4,7 @@
     "baseUrl": ".",
     "paths": {
       "@workspace/map/*": ["./src/*"],
-      "@workspace/ui/*": ["../ui/src/*"],
-      "@workspace/db": ["../database/src/*"]
+      "@workspace/ui/*": ["../ui/src/*"]
     }
   },
   "include": ["src/**/*"],

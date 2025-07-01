@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import {
   PeebuddyMap,
-  ToiletMarkerType,
   LocationButton,
   ZoomControls,
   MapRouting,
@@ -13,36 +12,32 @@ import { UserLocationMarker } from "@/components/localisation/userLocationMarker
 import { useGeolocation } from "@/hooks/useGeolocalisation";
 import { findNearestToilet } from "@/lib/utils";
 import { ToiletInfo } from "@/components/infos/ToiletInfo";
-
-const toilets: ToiletMarkerType[] = [
-  {
-    id: "1",
-    position: [43.6043, 1.4437],
-    name: "Toilette publique",
-    address: "123 Rue de la Paix, Toulouse",
-    rating: 4.5,
-    isVerified: true,
-  },
-  {
-    id: "2",
-    position: [43.610667, 1.428229],
-    name: "Toilette Centre-ville",
-    address: "456 Avenue des Fleurs, Toulouse",
-    rating: 4.2,
-    isVerified: true,
-  },
-];
+import { Toilet } from "@workspace/db";
 
 export default function MapComponent() {
   const { width, height } = useWindowSize();
   const { position: userLocation, error } = useGeolocation();
-  const [selectedToilet, setSelectedToilet] = useState<ToiletMarkerType | null>(
-    null
-  );
+  const [selectedToilet, setSelectedToilet] = useState<Toilet | null>(null);
 
-  function showMarker(toilet: ToiletMarkerType) {
-    return toilet.isVerified;
-  }
+  const [toilets, setToilets] = useState<Toilet[]>([]);
+
+  useEffect(() => {
+    if (!userLocation) return;
+
+    const fetchToilets = async () => {
+      try {
+        const toilets = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/toilets/nearby?latitude=${userLocation[0]}&longitude=${userLocation[1]}`
+        );
+        const { data } = await toilets.json();
+        setToilets(data);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des toilettes:", error);
+      }
+    };
+
+    fetchToilets();
+  }, [userLocation]);
 
   // Auto-select nearest toilet when user location is available
   useEffect(() => {
@@ -54,13 +49,17 @@ export default function MapComponent() {
     }
   }, [userLocation, selectedToilet]);
 
-  const handleToiletClick = (toilet: ToiletMarkerType) => {
+  const handleToiletClick = (toilet: Toilet) => {
     setSelectedToilet(toilet);
   };
 
   const handleCloseToilet = () => {
     setSelectedToilet(null);
   };
+
+  function showMarker(toilet: Toilet) {
+    return toilet.is_verified;
+  }
 
   if (width === 0 || height === 0) {
     return null;

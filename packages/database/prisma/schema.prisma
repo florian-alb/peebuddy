@@ -82,8 +82,8 @@ model Verification {
 
 model Toilet {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  longitude   Decimal   @db.Decimal
-  latitude    Decimal   @db.Decimal
+  longitude   String
+  latitude    String
   is_free     Boolean   @default(false)
   is_public   Boolean   @default(false)
   is_handicap Boolean   @default(false)
@@ -97,25 +97,27 @@ model Toilet {
 }
 
 model Picture {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  toilet_id  String?   @db.Uuid
-  name       String?   @db.VarChar(255)
-  url        String?   @db.VarChar(255)
-  updated_at DateTime? @db.Timestamp(6)
-  created_at DateTime  @default(now()) @db.Timestamp(6)
-  deleted_at DateTime? @db.Timestamp(6)
-  Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pictures_toilet_id_toilets_id_fk")
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  toilet_id   String?   @db.Uuid
+  name        String?   @db.VarChar(255)
+  url         String?   @db.VarChar(255)
+  updated_at  DateTime? @db.Timestamp(6)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at  DateTime? @db.Timestamp(6)
+  is_verified Boolean   @default(false)
+  Toilet      Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pictures_toilet_id_toilets_id_fk")
 }
 
 model Review {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  rating     Int       @db.SmallInt
-  comment    String?
-  toilet_id  String?   @db.Uuid
-  user_id    String? // plain-text foreign key
-  updated_at DateTime? @db.Timestamp(6)
-  created_at DateTime  @default(now()) @db.Timestamp(6)
-  deleted_at DateTime? @db.Timestamp(6)
-  Toilet     Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_toilet_id_toilets_id_fk")
-  User       User?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_user_id_users_id_fk")
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rating      Int       @db.SmallInt
+  comment     String?
+  toilet_id   String?   @db.Uuid
+  user_id     String? // plain-text foreign key
+  updated_at  DateTime? @db.Timestamp(6)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at  DateTime? @db.Timestamp(6)
+  is_verified Boolean   @default(false)
+  Toilet      Toilet?   @relation(fields: [toilet_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_toilet_id_toilets_id_fk")
+  User        User?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_user_id_users_id_fk")
 }

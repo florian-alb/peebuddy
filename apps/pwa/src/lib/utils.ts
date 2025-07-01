@@ -1,25 +1,21 @@
-import { ToiletMarkerType } from "@workspace/map";
+import { Toilet } from "@workspace/db";
 
 // Function to find nearest toilet
 export const findNearestToilet = (
   userLocation: [number, number],
-  toilets: ToiletMarkerType[]
-): ToiletMarkerType | null => {
+  toilets: Toilet[]
+): Toilet | null => {
   if (!userLocation || toilets.length === 0) return null;
 
   let nearestToilet = toilets[0];
   let shortestDistance = Infinity;
 
   toilets.forEach((toilet) => {
-    const position = Array.isArray(toilet.position)
-      ? (toilet.position as [number, number])
-      : [toilet.position.lat, toilet.position.lng];
-
     const distance = calculateDistance(
       userLocation[0],
       userLocation[1],
-      position[0],
-      position[1]
+      Number(toilet.latitude),
+      Number(toilet.longitude)
     );
 
     if (distance < shortestDistance) {

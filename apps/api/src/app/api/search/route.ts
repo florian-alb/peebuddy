@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     // Get search query
     const query = searchParams.get("q");
     if (!query || query.trim().length === 0) {
@@ -14,29 +14,33 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Get search type (optional)
     const type = searchParams.get("type")?.toLowerCase();
-    
+
     // Parse pagination parameters
-    const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : 10;
-    const offset = searchParams.get("offset") ? parseInt(searchParams.get("offset")!) : 0;
-    
+    const limit = searchParams.get("limit")
+      ? parseInt(searchParams.get("limit")!)
+      : 10;
+    const offset = searchParams.get("offset")
+      ? parseInt(searchParams.get("offset")!)
+      : 0;
+
     // Initialize results object
     const results: any = {};
     let totalResults = 0;
-    
+
     // Search for toilets if type is not specified or type is 'toilets'
-    if (!type || type === 'toilets') {
+    if (!type || type === "toilets") {
       // Search for toilets by coordinates (if query looks like coordinates)
       const coordsMatch = query.match(/^(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)$/);
-      
+
       let toilets = [];
       if (coordsMatch) {
         // If query is in format "latitude,longitude"
         const lat = parseFloat(coordsMatch[1]);
         const lon = parseFloat(coordsMatch[3]);
-        
+
         // Search for toilets near these coordinates
         toilets = await prisma.toilet.findMany({
           where: {
@@ -44,9 +48,19 @@ export async function GET(request: NextRequest) {
             // Using approximate coordinate matching
             // This is a simple approach - for production, use a geospatial database or PostGIS
             AND: [
-              { latitude: { gte: lat - 0.01, lte: lat + 0.01 } },
-              { longitude: { gte: lon - 0.01, lte: lon + 0.01 } }
-            ]
+              {
+                latitude: {
+                  gte: (lat - 0.01).toString(),
+                  lte: (lat + 0.01).toString(),
+                },
+              },
+              {
+                longitude: {
+                  gte: (lon - 0.01).toString(),
+                  lte: (lon + 0.01).toString(),
+                },
+              },
+            ],
           },
           include: {
             Review: {
@@ -71,21 +85,21 @@ export async function GET(request: NextRequest) {
                 deleted_at: null,
                 comment: {
                   contains: query,
-                  mode: 'insensitive',
+                  mode: "insensitive",
                 },
               },
             },
           },
           include: {
             Review: {
-              where: { 
+              where: {
                 deleted_at: null,
                 comment: {
                   contains: query,
-                  mode: 'insensitive',
+                  mode: "insensitive",
                 },
               },
-              select: { 
+              select: {
                 id: true,
                 rating: true,
                 comment: true,
@@ -94,8 +108,8 @@ export async function GET(request: NextRequest) {
                   select: {
                     name: true,
                     image: true,
-                  }
-                }
+                  },
+                },
               },
               take: 3, // Limit the number of matching reviews returned
             },
@@ -108,32 +122,33 @@ export async function GET(request: NextRequest) {
           skip: offset,
         });
       }
-      
+
       // Calculate average rating for each toilet
-      const toiletsWithRating = toilets.map(toilet => {
-        const avgRating = toilet.Review.length 
-          ? toilet.Review.reduce((sum, review) => sum + review.rating, 0) / toilet.Review.length
+      const toiletsWithRating = toilets.map((toilet) => {
+        const avgRating = toilet.Review.length
+          ? toilet.Review.reduce((sum, review) => sum + review.rating, 0) /
+            toilet.Review.length
           : null;
-          
+
         return {
           ...toilet,
           avgRating,
           reviewCount: toilet.Review.length,
         };
       });
-      
+
       results.toilets = toiletsWithRating;
       totalResults += toiletsWithRating.length;
     }
-    
+
     // Search for reviews if type is not specified or type is 'reviews'
-    if (!type || type === 'reviews') {
+    if (!type || type === "reviews") {
       const reviews = await prisma.review.findMany({
         where: {
           deleted_at: null,
           comment: {
             contains: query,
-            mode: 'insensitive',
+            mode: "insensitive",
           },
         },
         include: {
@@ -146,29 +161,29 @@ export async function GET(request: NextRequest) {
               is_public: true,
               is_handicap: true,
               is_commerce: true,
-            }
+            },
           },
           User: {
             select: {
               id: true,
               name: true,
               image: true,
-            }
+            },
           },
         },
         orderBy: {
-          created_at: 'desc',
+          created_at: "desc",
         },
         take: limit,
         skip: offset,
       });
-      
+
       results.reviews = reviews;
       totalResults += reviews.length;
     }
-    
+
     // Search for users if type is not specified or type is 'users'
-    if ((!type || type === 'users') && query.length >= 3) {
+    if ((!type || type === "users") && query.length >= 3) {
       const users = await prisma.user.findMany({
         where: {
           deleted_at: null,
@@ -176,24 +191,24 @@ export async function GET(request: NextRequest) {
             {
               name: {
                 contains: query,
-                mode: 'insensitive',
-              }
+                mode: "insensitive",
+              },
             },
             {
               email: {
                 contains: query,
-                mode: 'insensitive',
-              }
-            }
-          ]
+                mode: "insensitive",
+              },
+            },
+          ],
         },
         select: {
           id: true,
           name: true,
           email: true,
           image: true,
-          roles: true,
-          createdAt: true,
+          role: true,
+          created_at: true,
           // Include review count
           Review: {
             where: { deleted_at: null },
@@ -203,23 +218,23 @@ export async function GET(request: NextRequest) {
         take: limit,
         skip: offset,
       });
-      
+
       // Transform users to include review count
-      const usersWithReviewCount = users.map(user => ({
+      const usersWithReviewCount = users.map((user) => ({
         ...user,
         reviewCount: user.Review.length,
         Review: undefined, // Remove raw reviews from response
       }));
-      
+
       results.users = usersWithReviewCount;
       totalResults += usersWithReviewCount.length;
     }
-    
+
     return NextResponse.json({
       query,
-      type: type || 'all',
+      type: type || "all",
       totalResults,
-      results
+      results,
     });
   } catch (error) {
     console.error("Error searching:", error);

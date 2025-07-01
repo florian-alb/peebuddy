@@ -6,7 +6,7 @@ import {
   TileLayer,
   useMap,
 } from "react-leaflet";
-import { MapContainerProps } from "../types/types";
+import { MapComponentProps } from "../types/types";
 import { DEFAULT_TILE_LAYER, DEFAULT_ATTRIBUTION } from "../lib/utils";
 import { Map } from "leaflet";
 
@@ -31,7 +31,7 @@ export const MapContainer = ({
   mapOptions = {},
   children,
   onMapReady,
-}: MapContainerProps & { onMapReady?: (map: Map) => void }) => {
+}: MapComponentProps & { onMapReady?: (map: Map) => void }) => {
   return (
     <div className={className} style={style}>
       <LeafletMapContainer

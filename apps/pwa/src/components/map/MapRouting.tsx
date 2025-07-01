@@ -1,14 +1,23 @@
 "use client";
 
 import { useEffect } from "react";
-import { useDirection } from "../hooks/useDirection";
-import { MarkerProps } from "../types/types";
+import { useDirection } from "@/hooks/useDirection";
+import { DivIcon, Icon, LatLngExpression } from "leaflet";
 
-interface MapRoutingProps {
-  selectedToilet: MarkerProps | null;
+export interface MarkerProps {
+  position: LatLngExpression;
+  title?: string;
+  popup?: React.ReactNode;
+  icon?: Icon | DivIcon;
+  onClick?: () => void;
+  children?: React.ReactNode;
 }
 
-export const MapRouting = ({ selectedToilet }: MapRoutingProps) => {
+export const MapRouting = ({
+  selectedToilet,
+}: {
+  selectedToilet: MarkerProps | null;
+}) => {
   const { calculateRoute } = useDirection();
 
   // Calculate route when toilet is selected

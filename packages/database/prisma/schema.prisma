@@ -8,7 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// *
 /// * The User model represents a user in the system.
 /// * It has the following properties:
 /// * - id: A unique identifier for the user.

@@ -1,7 +1,7 @@
 import { prisma } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
 
-// POST to verify a picture
+// POST to verify a toilet
 export async function POST(
   request: NextRequest,
 ) {
@@ -9,30 +9,30 @@ export async function POST(
     const body = await request.json();
     const id = body.id;
     
-    const existingPicture = await prisma.picture.findUnique({
+    const existingToilet = await prisma.toilet.findUnique({
       where: { 
         id,
         deleted_at: null
       },
     });
     
-    if (!existingPicture) {
+    if (!existingToilet) {
       return NextResponse.json(
-        { error: "Picture not found" },
+        { error: "Toilet not found" },
         { status: 404 }
       );
     }
     
-    // If picture is already verified, return success
-    if (existingPicture.is_verified) {
+    // If toilet is already verified, return success
+    if (existingToilet.is_verified) {
       return NextResponse.json({
-        message: "Picture is already verified",
-        picture: existingPicture
+        message: "Toilet is already verified",
+        toilet: existingToilet
       });
     }
     
-    // Update picture to mark as verified
-    const verifiedPicture = await prisma.picture.update({
+    // Update toilet to mark as verified
+    const verifiedToilet = await prisma.toilet.update({
       where: { id },
       data: {
         is_verified: true,
@@ -41,13 +41,13 @@ export async function POST(
     });
     
     return NextResponse.json({
-      message: "Picture verified successfully",
-      picture: verifiedPicture
+      message: "Toilet verified successfully",
+      toilet: verifiedToilet
     });
   } catch (error) {
-    console.error("Error verifying picture:", error);
+    console.error("Error verifying toilet:", error);
     return NextResponse.json(
-      { error: "Failed to verify picture" },
+      { error: "Failed to verify toilet" },
       { status: 500 }
     );
   }

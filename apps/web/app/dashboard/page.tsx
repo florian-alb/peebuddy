@@ -108,15 +108,54 @@ export default function Dashboard() {
             console.error(error);
         }
     };
-    
-    const handleVerifyToilet = async (toiletId: number) => {
+
+    const handleVerifyPicture = async (pictureId: number) => {
         try {
-            const response = await fetch(`/api/toilets/${toiletId}/verify`, {
+            const response = await fetch(`/api/pictures/verify/`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
+                body: JSON.stringify({ id: pictureId }),
+            });
+            if (!response.ok) {
+                throw new Error(`API responded with status: ${response.status}`);
+            }
+            fetchStats();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleUnverifyPicture = async (pictureId: number) => {
+        try {
+            const response = await fetch(`/api/pictures/unverify/`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: pictureId }),
+            });
+            if (!response.ok) {
+                throw new Error(`API responded with status: ${response.status}`);
+            }
+            fetchStats();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    
+    const handleVerifyToilet = async (toiletId: number) => {
+        try {
+            const response = await fetch(`/api/toilets/verify/`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: toiletId }),
             });
             if (!response.ok) {
                 throw new Error(`API responded with status: ${response.status}`);
@@ -129,12 +168,13 @@ export default function Dashboard() {
 
     const handleUnverifyToilet = async (toiletId: number) => {
         try {
-            const response = await fetch(`/api/toilets/${toiletId}/unverify`, {
+            const response = await fetch(`/api/toilets/unverify/`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
+                body: JSON.stringify({ id: toiletId }),
             });
             if (!response.ok) {
                 throw new Error(`API responded with status: ${response.status}`);
@@ -186,7 +226,7 @@ export default function Dashboard() {
                 id: picture.id,
                 toiletId: picture.toilet_id,
                 uploadDate: new Date(picture.created_at).toISOString().split('T')[0],
-                status: picture.is_verified ? "approved" : "pending"
+                status: picture.is_verified ? "verified" : "pending"
             }));
             setPicturesData(transformedPictures);
             
@@ -330,8 +370,8 @@ export default function Dashboard() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card className="border-amber-200 text-black shadow-md hover:shadow-lg transition-shadow duration-200">
-                        <CardHeader className="bg-amber-100 border-b border-amber-200 pb-3">
+                    <Card>
+                        <CardHeader>
                             <div className="flex justify-between items-center">
                                 <CardTitle className="text-amber-800 flex items-center gap-2">
                                     <MapPin className="h-5 w-5" />
@@ -364,8 +404,8 @@ export default function Dashboard() {
                     </Card>
 
                             {/* Total Users Card */}
-                    <Card className="border-amber-200 shadow-md hover:shadow-lg transition-shadow duration-200">
-                        <CardHeader className="bg-amber-100 border-b border-amber-200 pb-3">
+                    <Card>
+                        <CardHeader>
                             <div className="flex justify-between items-center">
                                 <CardTitle className="text-amber-800 flex items-center gap-2">
                                     <Users className="h-5 w-5" />
@@ -394,8 +434,8 @@ export default function Dashboard() {
                         </CardFooter>
                     </Card>
 
-                    <Card className="border-amber-200 shadow-md hover:shadow-lg transition-shadow duration-200">
-                        <CardHeader className="bg-amber-100 border-b border-amber-200 pb-3">
+                    <Card>
+                        <CardHeader>
                             <div className="flex justify-between items-center">
                                 <CardTitle className="text-amber-800 flex items-center gap-2">
                                     <CalendarPlus className="h-5 w-5" />
@@ -460,7 +500,6 @@ export default function Dashboard() {
                                             <SelectItem className="cursor-pointer hover:bg-amber-100" value="verified">Verified</SelectItem>
                                             <SelectItem className="cursor-pointer hover:bg-amber-100" value="pending">Pending</SelectItem>
                                             <SelectItem className="cursor-pointer hover:bg-amber-100" value="rejected">Rejected</SelectItem>
-                                            <SelectItem className="cursor-pointer hover:bg-amber-100" value="approved">Approved</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -548,8 +587,8 @@ export default function Dashboard() {
                                                     <TableCell>{toilet.addedDate}</TableCell>
                                                     <TableCell>
                                                         <div className="flex items-center gap-2">
-                                                            <Button title="View the toilet" size="sm" variant="ghost" className="h-8 w-8 p-0">
-                                                                <Eye className="h-4 w-4 text-amber-600" />
+                                                            <Button title="Will be implemented" size="sm" variant="ghost" className="h-8 w-8 p-0 hover:cursor-not-allowed">
+                                                                <Eye className="h-4 w-4 text-gray-300/50" />
                                                             </Button>
                                                             {toilet.status === "pending" && (
                                                                 <>
@@ -660,7 +699,7 @@ export default function Dashboard() {
                                                     <TableCell>{picture.uploadDate}</TableCell>
                                                     <TableCell>
                                                         <Badge className={
-                                                            picture.status === "approved" ? "bg-green-100 text-green-800 hover:bg-green-200" :
+                                                            picture.status === "verified" ? "bg-green-100 text-green-800 hover:bg-green-200" :
                                                             picture.status === "pending" ? "bg-amber-100 text-amber-800 hover:bg-amber-200" :
                                                             "bg-red-100 text-red-800 hover:bg-red-200"
                                                         }>
@@ -669,13 +708,13 @@ export default function Dashboard() {
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex items-center gap-2">
-                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                                                                <Eye className="h-4 w-4 text-amber-600" />
+                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:cursor-not-allowed">
+                                                                <Eye className="h-4 w-4 text-gray-300/50" />
                                                             </Button>
-                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleVerifyPicture(picture.id)}>
                                                                 <Check className="h-4 w-4 text-green-600" />
                                                             </Button>
-                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUnverifyPicture(picture.id)}>
                                                                 <X className="h-4 w-4 text-red-600" />
                                                             </Button>
                                                         </div>

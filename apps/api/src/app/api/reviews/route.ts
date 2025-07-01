@@ -1,3 +1,4 @@
+import { auth } from "@workspace/auth";
 import { prisma } from "database";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -72,6 +73,17 @@ export async function GET(request: NextRequest) {
 
 // POST create a new review
 export async function POST(request: NextRequest) {
+  const sessionResult = await auth.api.getSession({
+    headers: request.headers
+  });
+  
+  if (sessionResult?.user.role !== 'admin') {
+    return NextResponse.json(
+      { error: "Admin access required" },
+      { status: 403 }
+    );
+  }
+  
   try {
     const body = await request.json();
     

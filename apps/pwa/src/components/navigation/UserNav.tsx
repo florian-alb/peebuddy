@@ -16,12 +16,10 @@ import {
 } from "@workspace/ui/components/avatar";
 import { LogIn, LogOut, User, Settings } from "lucide-react";
 import Link from "next/link";
-import { authClient } from "@workspace/auth";
+import { authClient, User as UserType } from "@workspace/auth";
 
-export async function UserNav() {
-  const { data } = await authClient.getSession();
-
-  if (!data || !data.user) {
+export function UserNav({ user }: { user: UserType | null }) {
+  if (!user) {
     return (
       <Link href="/login">
         <Button variant="outline" size="sm">
@@ -47,11 +45,8 @@ export async function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={data.user?.image || ""}
-              alt={data.user?.name || "User"}
-            />
-            <AvatarFallback>{getInitials(data.user?.name)}</AvatarFallback>
+            <AvatarImage src={user?.image || ""} alt={user?.name || "User"} />
+            <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -59,10 +54,10 @@ export async function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {data.user?.name || "Utilisateur"}
+              {user?.name || "Utilisateur"}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {data.user?.email}
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>

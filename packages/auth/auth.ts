@@ -7,7 +7,6 @@ async function findUserRoles(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
-  console.log(user);
   return user?.role || "user";
 }
 
@@ -33,11 +32,19 @@ export const auth = betterAuth({
   ],
   trustedOrigins: [
     "http://localhost:3001/*",
+    "http://localhost:3001",
+
     "http://localhost:3000/*",
     "http://localhost:3000",
+
     "https://peebuddy.vercel.app/*",
+    "https://peebuddy.vercel.app",
+
     "https://peebuddy-api.vercel.app/*",
+    "https://peebuddy-api.vercel.app",
+
     "https://peebuuddy-dashboard.vercel.app/*",
+    "https://peebuuddy-dashboard.vercel.app",
   ],
   socialProviders: {
     github: {

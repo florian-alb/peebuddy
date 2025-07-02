@@ -1,7 +1,7 @@
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import DynamicMap from "@/components/map/dynamicMap";
 import { UserNav } from "@/components/navigation/UserNav";
-import { auth, User } from "@workspace/auth";
+import { auth } from "@workspace/auth";
 import { headers } from "next/headers";
 
 export default async function Page() {

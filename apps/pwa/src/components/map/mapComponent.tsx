@@ -6,7 +6,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { useGeolocation } from "@/hooks/useGeolocalisation";
 
-import { Toilet } from "@workspace/db";
+import { Picture, Review, Toilet } from "@workspace/db";
 
 import { UserLocationMarker } from "@/components/localisation/userLocationMarker";
 import { ToiletInfo } from "@/components/infos/ToiletInfo";
@@ -22,14 +22,16 @@ import {
 import { LatLngLiteral } from "leaflet";
 import { MapCenterListener } from "@/components/map/mapCenterListener";
 import { ToiletMarker } from "@/components/map/ToiletMarker";
-import { LocationButton, ZoomControls } from "@/components/map/MapControls";
+import { MapControls } from "@/components/map/MapControls";
 import { MapRouting } from "@/components/map/MapRouting";
+import { ToiletWithReviewsAndPictures } from "@/types/toilets";
 
 export default function MapComponent() {
   const { width, height } = useWindowSize();
   const { position: userLocation, error } = useGeolocation();
-  const [selectedToilet, setSelectedToilet] = useState<Toilet | null>(null);
-  const [toilets, setToilets] = useState<Toilet[]>([]);
+  const [selectedToilet, setSelectedToilet] =
+    useState<ToiletWithReviewsAndPictures | null>(null);
+  const [toilets, setToilets] = useState<ToiletWithReviewsAndPictures[]>([]);
   const [mapCenter, setMapCenter] = useState<LatLngLiteral>(DEFAULT_CENTER);
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function MapComponent() {
     }
   }, [userLocation, selectedToilet]);
 
-  const handleToiletClick = (toilet: Toilet) => {
+  const handleToiletClick = (toilet: ToiletWithReviewsAndPictures) => {
     setSelectedToilet(toilet);
   };
 
@@ -122,8 +124,7 @@ export default function MapComponent() {
             )}
 
           {userLocation && <UserLocationMarker position={userLocation} />}
-          <LocationButton />
-          <ZoomControls />
+          <MapControls />
           {selectedToilet && (
             <MapRouting
               selectedToilet={{

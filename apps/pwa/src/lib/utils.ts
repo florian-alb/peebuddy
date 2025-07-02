@@ -1,4 +1,4 @@
-import { Toilet } from "@workspace/db";
+import { Picture, Review, Toilet } from "@workspace/db";
 import L, { Icon, LatLngLiteral } from "leaflet";
 
 export const DEFAULT_TILE_LAYER = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_API_KEY}`;
@@ -34,8 +34,8 @@ export function calculateDistance(
 // Find the nearest toilet to a given location
 export function findNearestToilet(
   userLocation: [number, number],
-  toilets: Toilet[]
-): Toilet | null {
+  toilets: (Toilet & { reviews: Review[] } & { pictures: Picture[] })[]
+): (Toilet & { reviews: Review[] } & { pictures: Picture[] }) | null {
   if (toilets.length === 0) return null;
 
   let nearestToilet: Toilet | null = null;

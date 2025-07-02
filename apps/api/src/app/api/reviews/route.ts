@@ -1,6 +1,11 @@
-import { auth } from "@workspace/auth";
-import { prisma } from "database";
+import { prisma } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
 
 // GET all reviews with optional filtering
 export async function GET(request: NextRequest) {
@@ -79,17 +84,6 @@ export async function GET(request: NextRequest) {
 
 // POST create a new review
 export async function POST(request: NextRequest) {
-  const sessionResult = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (sessionResult?.user.role !== "admin") {
-    return NextResponse.json(
-      { error: "Admin access required" },
-      { status: 403 }
-    );
-  }
-
   try {
     const body = await request.json();
 
@@ -167,7 +161,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(newReview, { status: 201 });
+    return NextResponse.json(
+      {
+        data: newReview,
+      },
+      { status: 201, headers: corsHeaders }
+    );
   } catch (error) {
     console.error("Error creating review:", error);
     return NextResponse.json(

@@ -15,8 +15,16 @@ import { Label } from "@workspace/ui/components/label";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { useState } from "react";
 import { toast } from "@workspace/ui";
+import { Session } from "@workspace/auth";
+import Link from "next/link";
 
-export function AddReviewModal({ toilet }: { toilet: Toilet }) {
+export function AddReviewModal({
+  toilet,
+  session,
+}: {
+  toilet: Toilet;
+  session: Session | undefined;
+}) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +36,11 @@ export function AddReviewModal({ toilet }: { toilet: Toilet }) {
     setSuccess(false);
     setIsLoading(true);
 
+    if (!session?.token) {
+      toast.error("Vous devez être connecté pour ajouter un avis");
+      return;
+    }
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/reviews`,
@@ -35,12 +48,18 @@ export function AddReviewModal({ toilet }: { toilet: Toilet }) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            Authorization: `Bearer ${session?.token}`,
           },
           body: JSON.stringify({
-            toiletId: toilet.id,
+            toilet_id: toilet.id,
             rating,
             comment,
+            ...(session?.userId && { user_id: session.userId }),
           }),
+          credentials: "include",
         }
       );
 
@@ -49,10 +68,8 @@ export function AddReviewModal({ toilet }: { toilet: Toilet }) {
         throw new Error(errorData.error || "Erreur lors de l'ajout de l'avis");
       }
 
-      // Show success message
       setSuccess(true);
 
-      // Reset form
       setRating(5);
       setComment("");
 
@@ -75,6 +92,14 @@ export function AddReviewModal({ toilet }: { toilet: Toilet }) {
     setRating(5);
     setComment("");
   };
+
+  if (!session) {
+    return (
+      <Link href="/login">
+        <Button variant="outline">Se connecter pour ajouter un avis</Button>
+      </Link>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

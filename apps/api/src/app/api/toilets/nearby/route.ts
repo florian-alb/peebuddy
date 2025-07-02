@@ -1,6 +1,12 @@
 import { prisma } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
 // Function to calculate distance between two points using Haversine formula
 function calculateDistance(
   lat1: number,
@@ -35,7 +41,7 @@ export async function GET(request: NextRequest) {
     if (!latitude || !longitude) {
       return NextResponse.json(
         { error: "Latitude and longitude are required" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -53,7 +59,7 @@ export async function GET(request: NextRequest) {
     ) {
       return NextResponse.json(
         { error: "Invalid coordinates" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -144,20 +150,23 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => a.distance - b.distance) // Sort by distance (closest first)
       .slice(0, limit); // Limit results
 
-    return NextResponse.json({
-      data: nearbyToilets,
-      meta: {
-        total: nearbyToilets.length,
-        latitude: lat,
-        longitude: lon,
-        radiusKm,
+    return NextResponse.json(
+      {
+        data: nearbyToilets,
+        meta: {
+          total: nearbyToilets.length,
+          latitude: lat,
+          longitude: lon,
+          radiusKm,
+        },
       },
-    });
+      { headers: corsHeaders }
+    );
   } catch (error) {
     console.error("Error finding nearby toilets:", error);
     return NextResponse.json(
       { error: "Failed to find nearby toilets" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

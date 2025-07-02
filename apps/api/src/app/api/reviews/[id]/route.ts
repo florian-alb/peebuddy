@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 // GET a specific review by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     
     const review = await prisma.review.findUnique({
       where: { 
@@ -56,10 +56,10 @@ export async function GET(
 // PUT update a review
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     const body = await request.json();
     
     // Check if review exists
@@ -116,10 +116,10 @@ export async function PUT(
 // DELETE a review (soft delete)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     
     // Check if review exists
     const existingReview = await prisma.review.findUnique({

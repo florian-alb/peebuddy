@@ -57,8 +57,9 @@ export async function GET(request: NextRequest) {
 }
 
 // POST create a new picture
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const id = (await params).id;
     const body = await request.json();
     
     // Validate required fields
@@ -70,10 +71,10 @@ export async function POST(request: NextRequest) {
     }
     
     // If toilet_id is provided, check if toilet exists
-    if (body.toilet_id) {
+    if (id) {
       const toilet = await prisma.toilet.findUnique({
         where: { 
-          id: body.toilet_id,
+          id: id,
           deleted_at: null
         },
       });
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
     // Create new picture
     const newPicture = await prisma.picture.create({
       data: {
-        toilet_id: body.toilet_id || null,
+        toilet_id: id,
         name: body.name || null,
         url: body.url,
       },

@@ -7,10 +7,9 @@ async function findUserRoles(userId: string) {
     const user = await prisma.user.findUnique({
         where: { id: userId },
     });
-    console.log(user);
     return user?.role || 'user';
 }
-  
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",

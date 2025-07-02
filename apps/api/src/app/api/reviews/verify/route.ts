@@ -7,11 +7,10 @@ import { createErrorResponse } from "@/lib/api-utils";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+    const id = (await params).id;
   try {
-    const id = params.id;
-    
     const existingReview = await prisma.review.findUnique({
       where: { 
         id,
@@ -26,7 +25,6 @@ export async function POST(
       );
     }
     
-    // If review is already verified, return success
     if (existingReview.is_verified) {
       return NextResponse.json({
         message: "Review is already verified",
@@ -34,7 +32,6 @@ export async function POST(
       });
     }
     
-    // Update review to mark as verified
     const verifiedReview = await prisma.review.update({
       where: { id },
       data: {
@@ -56,15 +53,13 @@ export async function POST(
   }
 }
 
-// DELETE to remove verification from a review
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     
-    // Check authentication and admin role
     const sessionResult = await auth.api.getSession({
       headers: request.headers
     });
@@ -73,13 +68,11 @@ export async function DELETE(
       return createErrorResponse("Authentication required", undefined, 401);
     }
     
-    // Verify admin role
     const userRoles = (sessionResult.user as any).roles;
     if (userRoles !== 'admin' && !userRoles?.includes?.('admin')) {
       return createErrorResponse("Admin access required to remove verification", undefined, 403);
     }
     
-    // Check if review exists
     const existingReview = await prisma.review.findUnique({
       where: { 
         id,
@@ -94,7 +87,6 @@ export async function DELETE(
       );
     }
     
-    // If review is not verified, return success
     if (!existingReview.is_verified) {
       return NextResponse.json({
         message: "Review is already unverified",
@@ -102,7 +94,6 @@ export async function DELETE(
       });
     }
     
-    // Update review to mark as unverified
     const unverifiedReview = await prisma.review.update({
       where: { id },
       data: {

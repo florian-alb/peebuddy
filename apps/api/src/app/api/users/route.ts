@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         email: true,
         emailVerified: true,
         image: true,
-        roles: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
         // Exclude sensitive information

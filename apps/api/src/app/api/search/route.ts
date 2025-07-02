@@ -192,7 +192,7 @@ export async function GET(request: NextRequest) {
           name: true,
           email: true,
           image: true,
-          roles: true,
+          role: true,
           createdAt: true,
           // Include review count
           Review: {

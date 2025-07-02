@@ -52,7 +52,6 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const method = request.method;
   
-  // Handle CORS preflight requests
   if (method === "OPTIONS") {
     return new NextResponse(null, {
       status: 200,
@@ -60,32 +59,22 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  // Allow public GET requests without authentication
   if (method === "GET" && publicPaths.some(p => path.startsWith(p.replace("[id]", "")))) {
     return addCorsHeaders(NextResponse.next());
   }
   
-  // Skip auth for auth-related endpoints
   if (request.nextUrl.pathname.startsWith("/api/auth")) {
     return addCorsHeaders(NextResponse.next());
   }
   
-  // For all other paths, verify authentication
   try {
-    // Get session using betterAuth
     const sessionData = await auth.api.getSession({
       headers: await headers()
     });
-    
-    // Log session data for debugging
-    console.log("Session data:", sessionData);
-    
-    // Check if session exists and has user data
     if (!sessionData || !sessionData.user) {
       return createErrorResponse("Authentication required", 401);
     }
     
-    // Check for admin role on admin paths
     if (adminPaths.some(p => path.startsWith(p.replace("[id]", "")))) {
       const isAdmin = sessionData.user.role === 'admin';
       
@@ -94,13 +83,11 @@ export async function middleware(request: NextRequest) {
       }
     }
     
-    // Add user data to headers for access in the route handlers
     const response = NextResponse.next();
     response.headers.set("x-user-id", sessionData.user.id);
     response.headers.set("x-user-email", sessionData.user.email);
     response.headers.set("x-user-role", sessionData.user.role || 'user');
     
-    // User is authenticated (and is admin if required), proceed
     return addCorsHeaders(response);
   } catch (error) {
     console.error("Authentication error:", error);
@@ -108,8 +95,6 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-// Configure which paths the middleware should run on
-// should match every route that contains a /verify or /unverify
 export const config = {
   matcher: [
     '/api/:path*',

@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 // GET a specific picture by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     
     const picture = await prisma.picture.findUnique({
       where: { 
@@ -49,10 +49,10 @@ export async function GET(
 // PUT update a picture
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id
     const body = await request.json();
     
     // Check if picture exists
@@ -111,10 +111,10 @@ export async function PUT(
 // DELETE a picture (soft delete)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     
     // Check if picture exists
     const existingPicture = await prisma.picture.findUnique({

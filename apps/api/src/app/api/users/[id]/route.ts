@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 // GET a specific user by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     
     const user = await prisma.user.findUnique({
       where: { 
@@ -20,7 +20,7 @@ export async function GET(
         email: true,
         emailVerified: true,
         image: true,
-        roles: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
         // Include reviews by this user
@@ -66,10 +66,10 @@ export async function GET(
 // PUT update a user
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     const body = await request.json();
     
     // Check if user exists
@@ -93,7 +93,7 @@ export async function PUT(
       data: {
         name: body.name !== undefined ? body.name : undefined,
         image: body.image !== undefined ? body.image : undefined,
-        roles: body.roles !== undefined ? body.roles : undefined,
+        role: body.role !== undefined ? body.role : undefined,
         updatedAt: new Date(),
         updated_at: new Date(),
       },
@@ -103,7 +103,7 @@ export async function PUT(
         email: true,
         emailVerified: true,
         image: true,
-        roles: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
       }
@@ -122,10 +122,10 @@ export async function PUT(
 // DELETE a user (soft delete)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     
     // Check if user exists
     const existingUser = await prisma.user.findUnique({

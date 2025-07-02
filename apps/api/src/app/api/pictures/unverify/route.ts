@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@workspace/db";
 
-export async function POST(request: Request) {
-    const body = await request.json();
-    const id = body.id;
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const id = (await params).id;
     const existingPicture = await prisma.picture.findUnique({
         where: {
             id: id,

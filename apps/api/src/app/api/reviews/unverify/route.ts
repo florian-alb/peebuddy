@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@workspace/db";
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
-    const id = params.id;
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const id = (await params).id;
     const existingReview = await prisma.review.findUnique({
         where: {
             id: id,

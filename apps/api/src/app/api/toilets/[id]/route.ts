@@ -5,10 +5,10 @@ import { ToiletWithRating, UpdateToiletDto } from "../../../../lib/types";
 // GET a specific toilet by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     
     const toilet = await prisma.toilet.findUnique({
       where: { 
@@ -64,10 +64,10 @@ export async function GET(
 // PUT update a toilet
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     const body = await request.json() as UpdateToiletDto;
     
     // Check if toilet exists
@@ -113,10 +113,10 @@ export async function PUT(
 // DELETE a toilet (soft delete)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const id = (await params).id;
     
     // Check if toilet exists
     const existingToilet = await prisma.toilet.findUnique({

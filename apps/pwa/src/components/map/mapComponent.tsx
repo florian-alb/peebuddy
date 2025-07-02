@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer } from "react-leaflet";
 
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { useGeolocation } from "@/hooks/useGeolocalisation";
@@ -20,10 +20,10 @@ import {
 } from "@/lib/utils";
 
 import { LatLngLiteral } from "leaflet";
-import { MapCenterListener } from "./mapCenterListener";
-import { LocationButton, ZoomControls } from "./mapControls";
-import { ToiletMarker } from "./toiletMarker";
-import { MapRouting } from "./mapRouting";
+import { MapCenterListener } from "@/components/map/mapCenterListener";
+import { ToiletMarker } from "@/components/map/ToiletMarker";
+import { LocationButton, ZoomControls } from "@/components/map/MapControls";
+import { MapRouting } from "@/components/map/MapRouting";
 
 export default function MapComponent() {
   const { width, height } = useWindowSize();

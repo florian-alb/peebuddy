@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@prisma/nextjs-monorepo-workaround-plugin": "^6.11.0",
     "@workspace/auth": "workspace:*",
     "@workspace/db": "workspace:*",
     "jsonwebtoken": "^9.0.2",

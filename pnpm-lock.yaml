@@ -52,6 +52,9 @@ importers:
         specifier: 15.3.4
         version: 15.3.4(@babel/core@7.28.0)(react-dom@19.1.0)(react@19.1.0)
     devDependencies:
+      '@prisma/nextjs-monorepo-workaround-plugin':
+        specifier: ^6.11.0
+        version: 6.11.0
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
@@ -2099,7 +2102,6 @@ packages:
 
   /@prisma/nextjs-monorepo-workaround-plugin@6.11.0:
     resolution: {integrity: sha512-4WwMkpuMIfJM1uPVjJQ5jCUrS+9icSc7SMI138o4J101FeLNy2b4hkiRdOEYcK+AX1cL5Ft40W3aJ5EDBjI39Q==}
-    dev: false
 
   /@radix-ui/number@1.1.1:
     resolution: {integrity: sha512-MkKCwxlXTgz6CFoJx3pCwn07GKp36+aZyu/u2Ln2VrA5DcdyCZkASEDBTd8x5whTQQL5CiYf4prXKLcgQdv29g==}

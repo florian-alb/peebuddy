@@ -11,6 +11,7 @@
     "@prisma/client": "^6.9.0",
     "@workspace/auth": "workspace:*",
     "@workspace/db": "workspace:*",
+    "@workspace/ui": "workspace:*",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.4"
   },

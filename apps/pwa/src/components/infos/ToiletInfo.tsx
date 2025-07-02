@@ -1,13 +1,19 @@
 "use client";
 
-import { Clock, User } from "lucide-react";
-import { Toilet } from "@workspace/db";
+import { Clock, Star, User } from "lucide-react";
+import { Review, Toilet } from "@workspace/db";
 import { Button } from "@workspace/ui/components/button";
 import { Badge } from "@workspace/ui/components/badge";
 import { Card } from "@workspace/ui/components/card";
 import { useState, useRef, useEffect } from "react";
+import { ToiletReview } from "./toiletReview";
+import { AddReviewModal } from "./addReviewModal";
 
-export const ToiletInfo = ({ toilet }: { toilet: Toilet }) => {
+export const ToiletInfo = ({
+  toilet,
+}: {
+  toilet: Toilet & { reviews: Review[] };
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [startY, setStartY] = useState(0);
   const [currentHeight, setCurrentHeight] = useState(0);
@@ -65,7 +71,7 @@ export const ToiletInfo = ({ toilet }: { toilet: Toilet }) => {
 
   return (
     <div
-      className="fixed w-full bottom-0 bg-white z-[1000] rounded-t-lg overflow-hidden"
+      className="fixed w-full bottom-0 bg-white z-10 rounded-t-lg overflow-hidden"
       style={{
         height: `${currentHeight}px`,
         transition: isDragging ? "none" : "height 0.3s ease-out",
@@ -84,20 +90,45 @@ export const ToiletInfo = ({ toilet }: { toilet: Toilet }) => {
 
           {/* Badges */}
           <div className="flex gap-2 mb-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              Gratuit
-            </Badge>
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              Accès handicapé
-            </Badge>
-            <Badge variant="outline" className="text-gray-600">
-              Publique
-            </Badge>
+            {toilet.is_free ? (
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-800"
+              >
+                Gratuit
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-red-100 text-red-800">
+                Payant
+              </Badge>
+            )}
+
+            {toilet.is_handicap ? (
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-800"
+              >
+                Accès handicapé
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-red-100 text-red-800">
+                Pas d'accès handicapé
+              </Badge>
+            )}
+            {toilet.is_public ? (
+              <Badge variant="outline" className="text-gray-600">
+                Publique
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-gray-600">
+                Commerce
+              </Badge>
+            )}
           </div>
 
           {/* Location Title */}
           <h1 className="text-lg font-semibold text-gray-900 mb-2">
-            Route de Launaguet (Toulouse, France)
+            {toilet.address}
           </h1>
 
           {/* Distance and Time */}
@@ -107,7 +138,6 @@ export const ToiletInfo = ({ toilet }: { toilet: Toilet }) => {
             <span className="text-sm font-medium">22 min</span>
           </div>
         </div>
-
         <div className="space-y-4 pb-4">
           {/* Image Placeholder */}
           <Card className="bg-gray-100 p-8 flex items-center justify-center">
@@ -133,6 +163,42 @@ export const ToiletInfo = ({ toilet }: { toilet: Toilet }) => {
               </Button>
             </div>
           </div>
+        </div>
+
+        <div className="flex justify-center flex-col gap-4 items-center">
+          <div className="flex items-center gap-2 justify-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Avis</h3>
+            <div className="flex gap-2">
+              <Star className="w-4 h-4 text-yellow-500" />
+              <span className="text-sm font-medium">
+                {toilet.reviews && toilet.reviews.length > 0
+                  ? toilet.reviews.reduce(
+                      (acc, review) => acc + review.rating,
+                      0
+                    ) / toilet.reviews.length
+                  : 0}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {toilet.reviews && toilet.reviews.length > 0 ? (
+              toilet.reviews.map((review: Review) => (
+                <ToiletReview key={review.id} review={review} />
+              ))
+            ) : (
+              <div className="text-sm text-gray-500">
+                Aucun avis pour le moment
+              </div>
+            )}
+          </div>
+          <AddReviewModal toilet={toilet} />
+        </div>
+
+        <div className="text-sm text-gray-500">
+          Dernière mise à jour:{" "}
+          {toilet.updated_at
+            ? new Date(toilet.updated_at).toLocaleDateString()
+            : new Date(toilet.created_at).toLocaleDateString()}
         </div>
       </div>
     </div>

@@ -79,6 +79,7 @@ model Toilet {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   longitude   String
   latitude    String
+  address     String?
   is_free     Boolean   @default(false)
   is_public   Boolean   @default(false)
   is_handicap Boolean   @default(false)
@@ -87,8 +88,8 @@ model Toilet {
   updated_at  DateTime? @db.Timestamp(6)
   created_at  DateTime  @default(now()) @db.Timestamp(6)
   deleted_at  DateTime? @db.Timestamp(6)
-  Picture     Picture[]
-  Review      Review[]
+  pictures    Picture[]
+  reviews     Review[]
 }
 
 model Picture {

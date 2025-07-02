@@ -6,25 +6,31 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     // Parse query parameters for filtering
     const toiletId = searchParams.get("toilet_id");
     const userId = searchParams.get("user_id");
-    const minRating = searchParams.get("min_rating") ? parseInt(searchParams.get("min_rating")!) : undefined;
-    
+    const minRating = searchParams.get("min_rating")
+      ? parseInt(searchParams.get("min_rating")!)
+      : undefined;
+
     // Parse pagination parameters
-    const take = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : 10;
-    const skip = searchParams.get("offset") ? parseInt(searchParams.get("offset")!) : 0;
-    
+    const take = searchParams.get("limit")
+      ? parseInt(searchParams.get("limit")!)
+      : 10;
+    const skip = searchParams.get("offset")
+      ? parseInt(searchParams.get("offset")!)
+      : 0;
+
     // Build filter object
     const filter: any = {
       deleted_at: null, // Only return non-deleted reviews
     };
-    
+
     if (toiletId) filter.toilet_id = toiletId;
     if (userId) filter.user_id = userId;
     if (minRating !== undefined) filter.rating = { gte: minRating };
-    
+
     // Get reviews
     const reviews = await prisma.review.findMany({
       where: filter,
@@ -34,33 +40,33 @@ export async function GET(request: NextRequest) {
             id: true,
             longitude: true,
             latitude: true,
-          }
+          },
         },
         User: {
           select: {
             id: true,
             name: true,
             image: true,
-          }
+          },
         },
       },
       orderBy: {
-        created_at: 'desc',
+        created_at: "desc",
       },
       take,
       skip,
     });
-    
+
     // Get total count for pagination
     const totalCount = await prisma.review.count({ where: filter });
-    
+
     return NextResponse.json({
       data: reviews,
       meta: {
         total: totalCount,
         offset: skip,
         limit: take,
-      }
+      },
     });
   } catch (error) {
     console.error("Error fetching reviews:", error);
@@ -74,19 +80,19 @@ export async function GET(request: NextRequest) {
 // POST create a new review
 export async function POST(request: NextRequest) {
   const sessionResult = await auth.api.getSession({
-    headers: request.headers
+    headers: request.headers,
   });
-  
-  if (sessionResult?.user.role !== 'admin') {
+
+  if (sessionResult?.user.role !== "admin") {
     return NextResponse.json(
       { error: "Admin access required" },
       { status: 403 }
     );
   }
-  
+
   try {
     const body = await request.json();
-    
+
     // Validate required fields
     if (!body.rating || !body.toilet_id || !body.user_id) {
       return NextResponse.json(
@@ -94,7 +100,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Validate rating (1-5)
     if (body.rating < 1 || body.rating > 5) {
       return NextResponse.json(
@@ -102,37 +108,31 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Check if toilet exists
     const toilet = await prisma.toilet.findUnique({
-      where: { 
+      where: {
         id: body.toilet_id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!toilet) {
-      return NextResponse.json(
-        { error: "Toilet not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Toilet not found" }, { status: 404 });
     }
-    
+
     // Check if user exists
     const user = await prisma.user.findUnique({
-      where: { 
+      where: {
         id: body.user_id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    
+
     // Check if user already reviewed this toilet
     const existingReview = await prisma.review.findFirst({
       where: {
@@ -141,14 +141,14 @@ export async function POST(request: NextRequest) {
         deleted_at: null,
       },
     });
-    
+
     if (existingReview) {
       return NextResponse.json(
         { error: "User has already reviewed this toilet" },
         { status: 400 }
       );
     }
-    
+
     // Create new review
     const newReview = await prisma.review.create({
       data: {
@@ -162,11 +162,11 @@ export async function POST(request: NextRequest) {
           select: {
             name: true,
             image: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
-    
+
     return NextResponse.json(newReview, { status: 201 });
   } catch (error) {
     console.error("Error creating review:", error);

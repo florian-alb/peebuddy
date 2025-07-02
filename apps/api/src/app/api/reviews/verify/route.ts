@@ -58,8 +58,8 @@ export async function DELETE(
     const sessionResult = await auth.api.getSession({
       headers: request.headers,
     });
-
-    if (!sessionResult?.user) {
+    
+    if (!sessionResult || !sessionResult.user) {
       return createErrorResponse("Authentication required", undefined, 401);
     }
     

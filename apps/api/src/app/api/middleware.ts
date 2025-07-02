@@ -65,11 +65,13 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/api/auth")) {
     return addCorsHeaders(NextResponse.next());
   }
-  
   try {
+    
     const sessionData = await auth.api.getSession({
       headers: await headers(),
     });
+  
+    console.log('sessionData', sessionData);
     if (!sessionData || !sessionData.user) {
       return createErrorResponse("Authentication required", 401);
     }

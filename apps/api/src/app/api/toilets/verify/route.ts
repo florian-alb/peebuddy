@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 // POST to verify a toilet
 export async function POST(
   request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const body = await request.json();
-    const id = body.id;
+    const id = (await params).id;
     
     const existingToilet = await prisma.toilet.findUnique({
       where: { 

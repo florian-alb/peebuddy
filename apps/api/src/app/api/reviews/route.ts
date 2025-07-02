@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     // Build filter object
     const filter: any = {
-      deleted_at: null, // Only return non-deleted reviews
+      deleted_at: null,
     };
 
     if (toiletId) filter.toilet_id = toiletId;
@@ -82,7 +82,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST create a new review
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -171,6 +170,40 @@ export async function POST(request: NextRequest) {
     console.error("Error creating review:", error);
     return NextResponse.json(
       { error: "Failed to create review" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const id = body.id;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Review ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const existingReview = await prisma.review.findUnique({
+      where: { id },
+    });
+
+    if (!existingReview) {
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
+    }
+
+    const deletedReview = await prisma.review.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true, deletedReview }, { status: 200 });
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    return NextResponse.json(
+      { error: "Failed to delete review" },
       { status: 500 }
     );
   }

@@ -7,8 +7,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-
+    const id = (await params).id;
+    
     const picture = await prisma.picture.findUnique({
       where: {
         id,
@@ -49,7 +49,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const id = (await params).id
     const body = await request.json();
 
     // Check if picture exists
@@ -108,8 +108,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-
+    const id = (await params).id;
+    
     // Check if picture exists
     const existingPicture = await prisma.picture.findUnique({
       where: {

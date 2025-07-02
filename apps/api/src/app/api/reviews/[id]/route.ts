@@ -10,9 +10,9 @@ export async function GET(
     const id = (await params).id;
     
     const review = await prisma.review.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
       include: {
         Toilet: {
@@ -24,25 +24,22 @@ export async function GET(
             is_public: true,
             is_handicap: true,
             is_commerce: true,
-          }
+          },
         },
         User: {
           select: {
             id: true,
             name: true,
             image: true,
-          }
+          },
         },
       },
     });
-    
+
     if (!review) {
-      return NextResponse.json(
-        { error: "Review not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
-    
+
     return NextResponse.json(review);
   } catch (error) {
     console.error("Error fetching review:", error);
@@ -61,22 +58,19 @@ export async function PUT(
   try {
     const id = (await params).id;
     const body = await request.json();
-    
+
     // Check if review exists
     const existingReview = await prisma.review.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!existingReview) {
-      return NextResponse.json(
-        { error: "Review not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
-    
+
     // Validate rating if provided
     if (body.rating !== undefined && (body.rating < 1 || body.rating > 5)) {
       return NextResponse.json(
@@ -84,7 +78,7 @@ export async function PUT(
         { status: 400 }
       );
     }
-    
+
     // Update review
     const updatedReview = await prisma.review.update({
       where: { id },
@@ -98,11 +92,11 @@ export async function PUT(
           select: {
             name: true,
             image: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
-    
+
     return NextResponse.json(updatedReview);
   } catch (error) {
     console.error("Error updating review:", error);
@@ -123,19 +117,16 @@ export async function DELETE(
     
     // Check if review exists
     const existingReview = await prisma.review.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!existingReview) {
-      return NextResponse.json(
-        { error: "Review not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
-    
+
     // Soft delete the review
     const deletedReview = await prisma.review.update({
       where: { id },
@@ -143,7 +134,7 @@ export async function DELETE(
         deleted_at: new Date(),
       },
     });
-    
+
     return NextResponse.json({ message: "Review deleted successfully" });
   } catch (error) {
     console.error("Error deleting review:", error);

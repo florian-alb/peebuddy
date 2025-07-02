@@ -1,5 +1,3 @@
-
-
 import { prisma } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@workspace/auth";
@@ -12,23 +10,20 @@ export async function POST(
     const id = (await params).id;
   try {
     const existingReview = await prisma.review.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!existingReview) {
-      return NextResponse.json(
-        { error: "Review not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
     
     if (existingReview.is_verified) {
       return NextResponse.json({
         message: "Review is already verified",
-        review: existingReview
+        review: existingReview,
       });
     }
     
@@ -39,10 +34,10 @@ export async function POST(
         updated_at: new Date(),
       },
     });
-    
+
     return NextResponse.json({
       message: "Review verified successfully",
-      review: verifiedReview
+      review: verifiedReview,
     });
   } catch (error) {
     console.error("Error verifying review:", error);
@@ -61,9 +56,9 @@ export async function DELETE(
     const id = (await params).id;
     
     const sessionResult = await auth.api.getSession({
-      headers: request.headers
+      headers: request.headers,
     });
-    
+
     if (!sessionResult?.user) {
       return createErrorResponse("Authentication required", undefined, 401);
     }
@@ -90,7 +85,7 @@ export async function DELETE(
     if (!existingReview.is_verified) {
       return NextResponse.json({
         message: "Review is already unverified",
-        review: existingReview
+        review: existingReview,
       });
     }
     
@@ -101,10 +96,10 @@ export async function DELETE(
         updated_at: new Date(),
       },
     });
-    
+
     return NextResponse.json({
       message: "Review verified successfully",
-      review: unverifiedReview
+      review: unverifiedReview,
     });
   } catch (error) {
     console.error("Error verifying review:", error);

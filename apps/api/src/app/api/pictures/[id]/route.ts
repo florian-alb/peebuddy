@@ -10,9 +10,9 @@ export async function GET(
     const id = (await params).id;
     
     const picture = await prisma.picture.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
       include: {
         Toilet: {
@@ -24,18 +24,15 @@ export async function GET(
             is_public: true,
             is_handicap: true,
             is_commerce: true,
-          }
+          },
         },
       },
     });
-    
+
     if (!picture) {
-      return NextResponse.json(
-        { error: "Picture not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Picture not found" }, { status: 404 });
     }
-    
+
     return NextResponse.json(picture);
   } catch (error) {
     console.error("Error fetching picture:", error);
@@ -54,31 +51,28 @@ export async function PUT(
   try {
     const id = (await params).id
     const body = await request.json();
-    
+
     // Check if picture exists
     const existingPicture = await prisma.picture.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!existingPicture) {
-      return NextResponse.json(
-        { error: "Picture not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Picture not found" }, { status: 404 });
     }
-    
+
     // If toilet_id is provided, check if toilet exists
     if (body.toilet_id) {
       const toilet = await prisma.toilet.findUnique({
-        where: { 
+        where: {
           id: body.toilet_id,
-          deleted_at: null
+          deleted_at: null,
         },
       });
-      
+
       if (!toilet) {
         return NextResponse.json(
           { error: "Toilet not found" },
@@ -86,7 +80,7 @@ export async function PUT(
         );
       }
     }
-    
+
     // Update picture
     const updatedPicture = await prisma.picture.update({
       where: { id },
@@ -97,7 +91,7 @@ export async function PUT(
         updated_at: new Date(),
       },
     });
-    
+
     return NextResponse.json(updatedPicture);
   } catch (error) {
     console.error("Error updating picture:", error);
@@ -118,19 +112,16 @@ export async function DELETE(
     
     // Check if picture exists
     const existingPicture = await prisma.picture.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!existingPicture) {
-      return NextResponse.json(
-        { error: "Picture not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Picture not found" }, { status: 404 });
     }
-    
+
     // Soft delete the picture
     const deletedPicture = await prisma.picture.update({
       where: { id },
@@ -138,7 +129,7 @@ export async function DELETE(
         deleted_at: new Date(),
       },
     });
-    
+
     return NextResponse.json({ message: "Picture deleted successfully" });
   } catch (error) {
     console.error("Error deleting picture:", error);

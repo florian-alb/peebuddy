@@ -1,5 +1,3 @@
-"use server"
-
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@workspace/auth";
 import { headers } from "next/headers";
@@ -7,23 +5,29 @@ import { headers } from "next/headers";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization"
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
 const publicPaths = [
   "/api",
-  "/api/toilets",
-  "/api/toilets/[id]",
-  "/api/pictures",
-  "/api/pictures/[id]",
+  "/api/docs",
   "/api/stats",
+  "/api/feed",
+  "/api/search",
+  "/api/toilets",
+  "/api/toilets/nearby",
+  "/api/pictures",
+  "/api/reviews",
 ];
 
 const adminPaths = [
   "/api/users",
-  "/api/users/[id]",
-  "/api/:path/unverify",
-  "/api/:path/unverify/[id]"
+  "/api/toilets/verify",
+  "/api/toilets/unverify",
+  "/api/pictures/verify",
+  "/api/pictures/unverify",
+  "/api/reviews/verify",
+  "/api/reviews/unverify",
 ];
 
 const addCorsHeaders = (response: NextResponse) => {
@@ -34,19 +38,14 @@ const addCorsHeaders = (response: NextResponse) => {
 };
 
 const createErrorResponse = (message: string, status: number) => {
-  return new NextResponse(
-    JSON.stringify({ error: message }),
-    { 
-      status, 
-      headers: { 
-        "content-type": "application/json",
-        ...corsHeaders 
-      } 
-    }
-  );
+  return new NextResponse(JSON.stringify({ error: message }), {
+    status,
+    headers: {
+      "content-type": "application/json",
+      ...corsHeaders,
+    },
+  });
 };
-
-// Edge middleware doesn't support Prisma, so we'll rely on session data only
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -55,7 +54,7 @@ export async function middleware(request: NextRequest) {
   if (method === "OPTIONS") {
     return new NextResponse(null, {
       status: 200,
-      headers: corsHeaders
+      headers: corsHeaders,
     });
   }
 
@@ -69,7 +68,7 @@ export async function middleware(request: NextRequest) {
   
   try {
     const sessionData = await auth.api.getSession({
-      headers: await headers()
+      headers: await headers(),
     });
     if (!sessionData || !sessionData.user) {
       return createErrorResponse("Authentication required", 401);
@@ -96,9 +95,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/api/:path*',
-    '/api/:path*/verify',
-    '/api/:path*/unverify',
-  ],
+  matcher: ["/api/:path*", "/((?!_next/static|_next/image|favicon.ico).*)"],
 };

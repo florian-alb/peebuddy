@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers";
 
+import "../styles/leaflet.css";
+
 const fontSans = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -57,7 +59,9 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
       >
-        <Providers>{children}</Providers>
+        <div className="h-screen w-screen overflow-hidden">
+          <Providers>{children}</Providers>
+        </div>
       </body>
     </html>
   );

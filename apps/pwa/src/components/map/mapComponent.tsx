@@ -6,7 +6,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { useGeolocation } from "@/hooks/useGeolocalisation";
 
-import { Picture, Review, Toilet } from "@workspace/db";
+import { Toilet } from "@workspace/db";
 
 import { UserLocationMarker } from "@/components/localisation/userLocationMarker";
 import { ToiletInfo } from "@/components/infos/ToiletInfo";
@@ -25,6 +25,7 @@ import { ToiletMarker } from "@/components/map/ToiletMarker";
 import { MapControls } from "@/components/map/MapControls";
 import { MapRouting } from "@/components/map/MapRouting";
 import { ToiletWithReviewsAndPictures } from "@/types/toilets";
+import { RouteInfo } from "@/hooks/useDirection";
 
 export default function MapComponent() {
   const { width, height } = useWindowSize();
@@ -33,6 +34,7 @@ export default function MapComponent() {
     useState<ToiletWithReviewsAndPictures | null>(null);
   const [toilets, setToilets] = useState<ToiletWithReviewsAndPictures[]>([]);
   const [mapCenter, setMapCenter] = useState<LatLngLiteral>(DEFAULT_CENTER);
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
 
   useEffect(() => {
     if (!mapCenter) return;
@@ -84,6 +86,10 @@ export default function MapComponent() {
     return !toilet.is_verified;
   }
 
+  const getRouteInfo = (routeInfo: RouteInfo | null) => {
+    setRouteInfo(routeInfo);
+  };
+
   if (width === 0 || height === 0) {
     return null;
   }
@@ -127,6 +133,7 @@ export default function MapComponent() {
           <MapControls />
           {selectedToilet && (
             <MapRouting
+              onRouteCalculated={getRouteInfo}
               selectedToilet={{
                 position: [
                   parseFloat(selectedToilet.latitude),
@@ -139,7 +146,9 @@ export default function MapComponent() {
       </div>
 
       {/* Display toilet info */}
-      {selectedToilet && <ToiletInfo toilet={selectedToilet} />}
+      {selectedToilet && (
+        <ToiletInfo toilet={selectedToilet} routeInfo={routeInfo} />
+      )}
 
       {/* Display errors if necessary*/}
       {error && (

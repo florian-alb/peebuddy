@@ -11,11 +11,15 @@ import { AddReviewModal } from "./addReviewModal";
 import { authClient } from "@workspace/auth";
 import Image from "next/image";
 import { ToiletWithReviewsAndPictures } from "@/types/toilets";
+import { RouteInfo } from "@/hooks/useDirection";
+import { formatDistance, formatDuration } from "@/lib/utils";
 
 export function ToiletInfo({
   toilet,
+  routeInfo,
 }: {
   toilet: ToiletWithReviewsAndPictures;
+  routeInfo: RouteInfo | null;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [startY, setStartY] = useState(0);
@@ -139,9 +143,13 @@ export function ToiletInfo({
 
             {/* Distance and Time */}
             <div className="flex items-center gap-2 text-primary pb-4">
-              <span className="text-sm font-medium">1 km</span>
+              <span className="text-sm font-medium">
+                {formatDistance(routeInfo?.distance)}
+              </span>
               <User className="w-4 h-4" />
-              <span className="text-sm font-medium">22 min</span>
+              <span className="text-sm font-medium">
+                {formatDuration(routeInfo?.duration)}
+              </span>
             </div>
           </div>
           <div className="space-y-4 pb-4">

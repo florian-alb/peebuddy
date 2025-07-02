@@ -97,14 +97,6 @@ export function sortToiletsByDistance(
   });
 }
 
-// Format distance for display
-export function formatDistance(distance: number): string {
-  if (distance < 1) {
-    return `${Math.round(distance * 1000)}m`;
-  }
-  return `${distance.toFixed(1)}km`;
-}
-
 // Create a bounds object from an array of toilets
 export function createBoundsFromToilets(
   toilets: Toilet[]
@@ -131,3 +123,21 @@ export const createToiletIcon = (isVerified: boolean = false): Icon => {
     popupAnchor: [0, -32],
   });
 };
+
+// Format duration for display
+export function formatDuration(duration: number | null | undefined): string {
+  if (!duration) return "0 min";
+  if (duration < 60) {
+    return `${Math.round(duration)} min`;
+  }
+  return `${Math.round(duration / 60)} h`;
+}
+
+// Format distance for display
+export function formatDistance(distance: number | null | undefined): string {
+  if (!distance) return "0m";
+  if (distance < 1) {
+    return `${Math.round(distance * 1000)}m`;
+  }
+  return `${distance.toFixed(1)}km`;
+}

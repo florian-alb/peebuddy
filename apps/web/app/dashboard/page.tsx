@@ -9,7 +9,7 @@ import { Input } from "@workspace/ui/components/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select";
-import { MapPin, Users, CalendarPlus, Search, Filter, Eye, Check, X, Image, RefreshCw, Trash, Star } from "lucide-react";
+import { MapPin, Users, CalendarPlus, Search, Filter, Eye, Check, X, Image, RefreshCw, Trash, Star, ArrowUp, ArrowDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { AlertCircle } from "lucide-react";
@@ -30,6 +30,16 @@ interface PictureData {
     status: string;
 }
 
+interface ReviewData {
+    id: number;
+    toiletId: number;
+    userId: number;
+    rating: number;
+    comment: string;
+    status: string;
+    createdAt: string;
+}
+
 interface UserData {
     id: number;
     name: string;
@@ -44,6 +54,7 @@ interface Stats {
     verifiedToilets: number;
     totalUsers: number;
     newToilets: number;
+    totalReviews: number;
     timeRange: string;
     averageRating: number;
     totalPictures: number;
@@ -69,6 +80,7 @@ export default function Dashboard() {
     const [toiletsData, setToiletsData] = useState<ToiletData[]>([]);
     const [picturesData, setPicturesData] = useState<PictureData[]>([]);
     const [usersData, setUsersData] = useState<UserData[]>([]);
+    const [reviewsData, setReviewsData] = useState<ReviewData[]>([]);
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -84,6 +96,7 @@ export default function Dashboard() {
         verifiedToilets: 0,
         totalUsers: 0,
         newToilets: 0,
+        totalReviews: 0,
         timeRange: "monthly",
         averageRating: 0,
         totalPictures: 0,
@@ -97,6 +110,65 @@ export default function Dashboard() {
         hasMorePictures: false,
         toiletsPerPage: 15
     });
+
+    const handleVerifyReview = async (reviewId: number) => {
+        console.log('reviewId', reviewId);
+        try {
+            const response = await fetch(`/api/reviews/verify/`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: reviewId }),
+            });
+            if (!response.ok) {
+                throw new Error(`API responded with status: ${response.status}`);
+            }
+            fetchStats();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleDeleteReview = async (reviewId: number) => {
+        try {
+            const response = await fetch(`/api/reviews/`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: reviewId }),
+            });
+            if (!response.ok) {
+                throw new Error(`API responded with status: ${response.status}`);
+            }
+            fetchStats();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleUnverifyReview = async (reviewId: number) => {
+        try {
+            const response = await fetch(`/api/reviews/unverify/`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: reviewId }),
+            });
+            if (!response.ok) {
+                throw new Error(`API responded with status: ${response.status}`);
+            }
+            const data = await response.json();
+            fetchStats();
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
 
     const handleDeleteToilet = async (toiletId: number) => {
@@ -126,6 +198,43 @@ export default function Dashboard() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ id: pictureId }),
+            });
+            if (!response.ok) {
+                throw new Error(`API responded with status: ${response.status}`);
+            }
+            fetchStats();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    const handlePromote = async (userId: number) => {
+        try {
+            const response = await fetch(`/api/users/promote/`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: userId }),
+            });
+            if (!response.ok) {
+                throw new Error(`API responded with status: ${response.status}`);
+            }
+            fetchStats();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleDemote = async (userId: number) => {
+        try {
+            const response = await fetch(`/api/users/demote/`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: userId }),
             });
             if (!response.ok) {
                 throw new Error(`API responded with status: ${response.status}`);
@@ -213,6 +322,7 @@ export default function Dashboard() {
                 totalToilets: data.toilets.total,
                 verifiedToilets: data.toilets.verified.total,
                 totalUsers: data.users.total,
+                totalReviews: data.reviews.total,
                 newToilets: data.toilets.total - data.toilets.verified.total,
                 timeRange: "monthly",
                 averageRating: data.reviews.averageRating,
@@ -244,7 +354,12 @@ export default function Dashboard() {
                 status: picture.is_verified ? "verified" : "pending"
             }));
             setPicturesData(transformedPictures);
-
+            setReviewsData(data.reviews.reviews.map((review: any) => ({
+                id: review.id,
+                toiletId: review.toilet_id,
+                uploadDate: new Date(review.created_at).toISOString().split('T')[0],
+                status: review.is_verified ? "verified" : "pending"
+            })));
             // Transform paginated users data
             const transformedUsers = data.users.users.map((user: any) => {
                 const contributions = 0;
@@ -321,9 +436,10 @@ export default function Dashboard() {
     const filteredToilets = filterData(toiletsData, searchQuery, statusFilter);
     const filteredPictures = filterData(picturesData, searchQuery, statusFilter);
     const filteredUsers = filterData(usersData, searchQuery, "all");
+    const filteredReviews = filterData(reviewsData, searchQuery, statusFilter);
 
     // Get current page data
-    filteredToilets
+    const currentReviews = getPaginatedData(filteredReviews, currentPage, itemsPerPage);
     const currentPictures = getPaginatedData(filteredPictures, currentPage, itemsPerPage);
     const currentUsers = getPaginatedData(filteredUsers, currentPage, itemsPerPage);
 
@@ -704,8 +820,8 @@ export default function Dashboard() {
                             </div>
                         </TabsContent>
 
-                        {/* Pictures Tab */}
-                        <TabsContent value="pictures" className="p-0">
+                        {/* Review Tabs */}
+                        <TabsContent value="reviews" className="p-0">
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -721,7 +837,7 @@ export default function Dashboard() {
                                         {isLoading ? (
                                             <TableRow>
                                                 <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                                                    Loading picture data...
+                                                    Loading review data...
                                                 </TableCell>
                                             </TableRow>
                                         ) : hasError ? (
@@ -730,19 +846,19 @@ export default function Dashboard() {
                                                     Error loading data. Please try again.
                                                 </TableCell>
                                             </TableRow>
-                                        ) : currentPictures.length > 0 ? (
-                                            currentPictures.map((picture) => (
-                                                <TableRow key={picture.id}>
-                                                    <TableCell className="font-medium">{picture.id}</TableCell>
-                                                    <TableCell>{picture.toiletId}</TableCell>
-                                                    <TableCell>{picture.uploadDate}</TableCell>
+                                        ) : currentReviews.length > 0 ? (
+                                            currentReviews.map((review) => (
+                                                <TableRow key={review.id} className="hover:bg-gray-50">
+                                                    <TableCell>{review.id}</TableCell>
+                                                    <TableCell>{review.toiletId}</TableCell>
+                                                    <TableCell>{review.createdAt}</TableCell>
                                                     <TableCell>
                                                         <Badge className={
-                                                            picture.status === "verified" ? "bg-green-100 text-green-800 hover:bg-green-200" :
-                                                                picture.status === "pending" ? "bg-gray-100 text-amber-800 hover:bg-amber-50" :
+                                                            review.status === "verified" ? "bg-green-100 text-green-800 hover:bg-green-200" :
+                                                                review.status === "pending" ? "bg-gray-100 text-amber-800 hover:bg-amber-50" :
                                                                     "bg-red-100 text-red-800 hover:bg-red-200"
                                                         }>
-                                                            {picture.status.charAt(0).toUpperCase() + picture.status.slice(1)}
+                                                            {review.status.charAt(0).toUpperCase() + review.status.slice(1)}
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell>
@@ -750,12 +866,22 @@ export default function Dashboard() {
                                                             <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:cursor-not-allowed">
                                                                 <Eye className="h-4 w-4 text-gray-300/50" />
                                                             </Button>
-                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleVerifyPicture(picture.id)}>
-                                                                <Check className="h-4 w-4 text-amber-600" />
-                                                            </Button>
-                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUnverifyPicture(picture.id)}>
-                                                                <X className="h-4 w-4 text-red-600" />
-                                                            </Button>
+                                                            {
+                                                                review.status === "pending" ? (
+                                                                    <>
+                                                                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleVerifyReview(review.id)}>
+                                                                            <Check className="h-4 w-4 text-amber-600" />
+                                                                        </Button>
+                                                                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleDeleteReview(review.id)}>
+                                                                            <X className="h-4 w-4 text-red-600" />
+                                                                        </Button>
+                                                                    </>
+                                                                ) : (
+                                                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleUnverifyReview(review.id)}>
+                                                                        <X className="h-4 w-4 text-red-600" />
+                                                                    </Button>
+                                                                )
+                                                            }
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>
@@ -763,72 +889,19 @@ export default function Dashboard() {
                                         ) : (
                                             <TableRow>
                                                 <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                                                    No pictures found matching your criteria
+                                                    No reviews found matching your criteria
                                                 </TableCell>
                                             </TableRow>
                                         )}
                                     </TableBody>
                                 </Table>
-                                {filteredPictures.length > itemsPerPage && (
-                                    <div className="flex justify-center items-center p-4 border-t border-gray-200">
-                                        <div className="flex items-center gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handlePageChange(currentPage - 1)}
-                                                disabled={currentPage === 1}
-                                                className="border-gray-200 hover:bg-amber-50 text-gray-700 hover:text-amber-700"
-                                            >
-                                                Previous
-                                            </Button>
+                            </div>
+                        </TabsContent>
 
-                                            <div className="flex items-center gap-1">
-                                                {(() => {
-                                                    // Show max 10 pages with current page in the middle when possible
-                                                    const maxPages = 10;
-                                                    const halfMaxPages = Math.floor(maxPages / 2);
-                                                    let startPage = Math.max(1, currentPage - halfMaxPages);
-                                                    let endPage = Math.min(totalPages.pictures, startPage + maxPages - 1);
-
-                                                    // Adjust start if we hit the end limit
-                                                    if (endPage - startPage + 1 < maxPages) {
-                                                        startPage = Math.max(1, endPage - maxPages + 1);
-                                                    }
-
-                                                    return Array.from(
-                                                        { length: endPage - startPage + 1 },
-                                                        (_, i) => startPage + i
-                                                    ).map((page) => (
-                                                        <Button
-                                                            key={page}
-                                                            variant={currentPage === page ? "default" : "outline"}
-                                                            size="sm"
-                                                            onClick={() => handlePageChange(page)}
-                                                            className={currentPage === page ?
-                                                                "bg-amber-500 hover:bg-amber-600" :
-                                                                "border-gray-200 hover:bg-gray-100"}
-                                                        >
-                                                            {page}
-                                                        </Button>
-                                                    ));
-                                                })()}
-                                            </div>
-
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handlePageChange(currentPage + 1)}
-                                                disabled={currentPage === totalPages.pictures}
-                                                className="border-gray-200 hover:bg-amber-50 text-gray-700 hover:text-amber-700"
-                                            >
-                                                Next
-                                            </Button>
-                                        </div>
-                                        <div className="text-sm text-gray-500 ml-4">
-                                            Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filteredPictures.length)} of {filteredPictures.length}
-                                        </div>
-                                    </div>
-                                )}
+                        {/* Pictures Tab */}
+                        <TabsContent value="pictures" className="p-0">
+                            <div className="flex justify-center items-center h-full py-12">
+                                Will be implemented in v2 ❣️
                             </div>
                         </TabsContent>
 
@@ -870,14 +943,21 @@ export default function Dashboard() {
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                                                                <Eye className="h-4 w-4 text-gray-600" />
-                                                            </Button>
-                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                                                                <Eye className="h-4 w-4 text-gray-600" />
-                                                            </Button>
-                                                        </div>
+                                                        {
+                                                            user.role === "user" ? (
+                                                                <div className="flex items-center gap-2">
+                                                                    <Button title="Promote to admin" size="sm" variant="ghost" className="h-8 hover:bg-green-200 transition-colors duration-200 w-8 p-0" onClick={() => handlePromote(user.id)}>
+                                                                        <ArrowUp className="h-4 w-4 text-gray-600" />
+                                                                    </Button>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex items-center gap-2">
+                                                                    <Button title="Demote to user" size="sm" variant="ghost" className="h-8 hover:bg-red-200 transition-colors duration-200 w-8 p-0" onClick={() => handleDemote(user.id)}>
+                                                                        <ArrowDown className="h-4 w-4 text-gray-600" />
+                                                                    </Button>
+                                                                </div>
+                                                            )
+                                                        }
                                                     </TableCell>
                                                 </TableRow>
                                             ))

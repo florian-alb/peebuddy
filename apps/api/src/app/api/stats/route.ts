@@ -284,6 +284,7 @@ export async function GET(request: NextRequest) {
       },
       reviews: {
         total: totalReviews.length,
+        reviews: totalReviews,
         averageRating: parseFloat(avgRating.toFixed(2))
       },
       users: {

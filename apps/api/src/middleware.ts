@@ -50,8 +50,7 @@ const createErrorResponse = (message: string, status: number) => {
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const method = request.method;
-
-  // Handle CORS preflight requests
+  
   if (method === "OPTIONS") {
     return new NextResponse(null, {
       status: 200,
@@ -59,61 +58,35 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  // Check if the path is public (allow without authentication)
-  const isPublicPath = publicPaths.some((publicPath) => {
-    if (publicPath.includes("[id]")) {
-      // Handle dynamic routes like /api/toilets/[id]
-      const pattern = publicPath.replace("[id]", "[^/]+");
-      const regex = new RegExp(`^${pattern}$`);
-      return regex.test(path);
-    }
-    return path.startsWith(publicPath);
-  });
-
-  // Allow public GET requests without authentication
-  if (method === "GET" && isPublicPath) {
+  if (method === "GET" && publicPaths.some(p => path.startsWith(p.replace("[id]", "")))) {
     return addCorsHeaders(NextResponse.next());
   }
-
-  // Skip auth for auth-related endpoints
-  if (path.startsWith("/api/auth")) {
+  
+  if (request.nextUrl.pathname.startsWith("/api/auth")) {
     return addCorsHeaders(NextResponse.next());
   }
-
-  // Check if the path requires admin privileges
-  const isAdminPath = adminPaths.some((adminPath) => {
-    if (adminPath.includes("[id]")) {
-      const pattern = adminPath.replace("[id]", "[^/]+");
-      const regex = new RegExp(`^${pattern}`);
-      return regex.test(path);
-    }
-    return path.startsWith(adminPath);
-  });
-
-  // For protected paths, verify authentication
+  
   try {
-    // Get session using betterAuth
     const sessionData = await auth.api.getSession({
       headers: await headers(),
     });
-
-    // Check if session exists and has user data
     if (!sessionData || !sessionData.user) {
       return createErrorResponse("Authentication required", 401);
     }
-
-    // Check for admin role on admin paths
-    if (isAdminPath && sessionData.user.role !== "admin") {
-      return createErrorResponse("Admin access required", 403);
+    
+    if (adminPaths.some(p => path.startsWith(p.replace("[id]", "")))) {
+      const isAdmin = sessionData.user.role === 'admin';
+      
+      if (!isAdmin) {
+        return createErrorResponse("Admin access required", 403);
+      }
     }
-
-    // Add user data to headers for access in the route handlers
+    
     const response = NextResponse.next();
     response.headers.set("x-user-id", sessionData.user.id);
     response.headers.set("x-user-email", sessionData.user.email);
-    response.headers.set("x-user-role", sessionData.user.role || "user");
-
-    // User is authenticated (and is admin if required), proceed
+    response.headers.set("x-user-role", sessionData.user.role || 'user');
+    
     return addCorsHeaders(response);
   } catch (error) {
     console.error("Authentication error:", error);
@@ -121,7 +94,6 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-// Configure which paths the middleware should run on
 export const config = {
   matcher: ["/api/:path*", "/((?!_next/static|_next/image|favicon.ico).*)"],
 };

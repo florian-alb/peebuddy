@@ -1,31 +1,25 @@
-import { auth } from "@workspace/auth";
 import { prisma } from "database";
 import { NextRequest, NextResponse } from "next/server";
 
-// GET all reviews with optional filtering
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     
-    // Parse query parameters for filtering
     const toiletId = searchParams.get("toilet_id");
     const userId = searchParams.get("user_id");
     const minRating = searchParams.get("min_rating") ? parseInt(searchParams.get("min_rating")!) : undefined;
     
-    // Parse pagination parameters
     const take = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : 10;
     const skip = searchParams.get("offset") ? parseInt(searchParams.get("offset")!) : 0;
     
-    // Build filter object
     const filter: any = {
-      deleted_at: null, // Only return non-deleted reviews
+      deleted_at: null,
     };
     
     if (toiletId) filter.toilet_id = toiletId;
     if (userId) filter.user_id = userId;
     if (minRating !== undefined) filter.rating = { gte: minRating };
     
-    // Get reviews
     const reviews = await prisma.review.findMany({
       where: filter,
       include: {
@@ -51,7 +45,6 @@ export async function GET(request: NextRequest) {
       skip,
     });
     
-    // Get total count for pagination
     const totalCount = await prisma.review.count({ where: filter });
     
     return NextResponse.json({
@@ -71,23 +64,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST create a new review
 export async function POST(request: NextRequest) {
-  const sessionResult = await auth.api.getSession({
-    headers: request.headers
-  });
-  
-  if (sessionResult?.user.role !== 'admin') {
-    return NextResponse.json(
-      { error: "Admin access required" },
-      { status: 403 }
-    );
-  }
-  
   try {
     const body = await request.json();
     
-    // Validate required fields
     if (!body.rating || !body.toilet_id || !body.user_id) {
       return NextResponse.json(
         { error: "Rating, toilet_id, and user_id are required" },
@@ -95,7 +75,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Validate rating (1-5)
     if (body.rating < 1 || body.rating > 5) {
       return NextResponse.json(
         { error: "Rating must be between 1 and 5" },
@@ -103,7 +82,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Check if toilet exists
     const toilet = await prisma.toilet.findUnique({
       where: { 
         id: body.toilet_id,
@@ -118,7 +96,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Check if user exists
     const user = await prisma.user.findUnique({
       where: { 
         id: body.user_id,
@@ -133,7 +110,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Check if user already reviewed this toilet
     const existingReview = await prisma.review.findFirst({
       where: {
         toilet_id: body.toilet_id,
@@ -149,7 +125,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Create new review
     const newReview = await prisma.review.create({
       data: {
         rating: body.rating,
@@ -172,6 +147,43 @@ export async function POST(request: NextRequest) {
     console.error("Error creating review:", error);
     return NextResponse.json(
       { error: "Failed to create review" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const id = body.id;
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: "Review ID is required" },
+        { status: 400 }
+      );
+    }
+    
+    const existingReview = await prisma.review.findUnique({
+      where: { id },
+    });
+    
+    if (!existingReview) {
+      return NextResponse.json(
+        { error: "Review not found" },
+        { status: 404 }
+      );
+    }
+    
+    const deletedReview = await prisma.review.delete({
+      where: { id },
+    });
+    
+    return NextResponse.json({ success: true, deletedReview }, { status: 200 });
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    return NextResponse.json(
+      { error: "Failed to delete review" },
       { status: 500 }
     );
   }

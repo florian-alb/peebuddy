@@ -8,8 +8,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-
+    const id = (await params).id;
+    
     const toilet = await prisma.toilet.findUnique({
       where: {
         id,
@@ -67,9 +67,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const body = (await request.json()) as UpdateToiletDto;
-
+    const id = (await params).id;
+    const body = await request.json() as UpdateToiletDto;
+    
     // Check if toilet exists
     const existingToilet = await prisma.toilet.findUnique({
       where: {
@@ -118,8 +118,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-
+    const id = (await params).id;
+    
     // Check if toilet exists
     const existingToilet = await prisma.toilet.findUnique({
       where: {

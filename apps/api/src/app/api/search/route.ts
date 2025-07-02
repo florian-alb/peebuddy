@@ -208,7 +208,7 @@ export async function GET(request: NextRequest) {
           email: true,
           image: true,
           role: true,
-          created_at: true,
+          createdAt: true,
           // Include review count
           Review: {
             where: { deleted_at: null },

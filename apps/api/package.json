@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 4000",
-    "build": "next build",
-    "start": "next start"
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@workspace/auth": "workspace:*",
     "@workspace/db": "workspace:*",
-    "@workspace/ui": "workspace:*",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.4"
   },

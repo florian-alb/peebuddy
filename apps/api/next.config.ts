@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    serverComponentsExternalPackages: ["@workspace/db"],
+  },
+  webpack: (config) => {
+    config.externals.push({
+      "@workspace/db": "@workspace/db",
+    });
+    return config;
+  },
 };
 
 export default nextConfig;

@@ -23,7 +23,6 @@ export async function POST(
       );
     }
     
-    // If toilet is already verified, return success
     if (existingToilet.is_verified) {
       return NextResponse.json({
         message: "Toilet is already verified",

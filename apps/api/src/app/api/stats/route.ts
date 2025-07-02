@@ -1,49 +1,122 @@
 import { prisma } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
 
+// Pagination interface
+interface PaginationParams {
+  page: number;
+  pageSize: number;
+}
+
 // GET statistics about the peeBuddy application
 export async function GET(request: NextRequest) {
+  // Extract pagination parameters from URL
+  const searchParams = request.nextUrl.searchParams;
+  const page = parseInt(searchParams.get('page') || '1');
+  const pageSize = parseInt(searchParams.get('pageSize') || '10');
+  
+  // Validate pagination parameters
+  const pagination: PaginationParams = {
+    page: isNaN(page) || page < 1 ? 1 : page,
+    pageSize: isNaN(pageSize) || pageSize < 1 || pageSize > 100 ? 10 : pageSize
+  };
+  
+  // Calculate skip value for pagination
+  const skip = (pagination.page - 1) * pagination.pageSize;
   try {
-    // Count total active toilets
-    const totalToilets = await prisma.toilet.findMany({
+    // Count total active toilets (count only)
+    const totalToiletsCount = await prisma.toilet.count({
       where: { deleted_at: null }
     });
     
-    // Count verified toilets
-    const verifiedToilets = await prisma.toilet.findMany({
+    // Get paginated toilets
+    const totalToilets = await prisma.toilet.findMany({
+      where: { deleted_at: null },
+      skip,
+      take: pagination.pageSize
+    });
+    
+    // Count verified toilets (count only)
+    const verifiedToiletsCount = await prisma.toilet.count({
       where: { 
         deleted_at: null,
         is_verified: true
       }
     });
     
-    // Count toilets by type
-    const freeToilets = await prisma.toilet.findMany({
+    // Get paginated verified toilets
+    const verifiedToilets = await prisma.toilet.findMany({
+      where: { 
+        deleted_at: null,
+        is_verified: true
+      },
+      skip,
+      take: pagination.pageSize
+    });
+    
+    // Count toilets by type (counts only)
+    const freeToiletsCount = await prisma.toilet.count({
       where: { 
         deleted_at: null,
         is_free: true
       }
     });
     
-    const publicToilets = await prisma.toilet.findMany({
+    const publicToiletsCount = await prisma.toilet.count({
       where: { 
         deleted_at: null,
         is_public: true
       }
     });
     
-    const handicapToilets = await prisma.toilet.findMany({
+    const handicapToiletsCount = await prisma.toilet.count({
       where: { 
         deleted_at: null,
         is_handicap: true
       }
     });
     
-    const commerceToilets = await prisma.toilet.findMany({
+    const commerceToiletsCount = await prisma.toilet.count({
       where: { 
         deleted_at: null,
         is_commerce: true
       }
+    });
+    
+    // Get paginated toilets by type
+    const freeToilets = await prisma.toilet.findMany({
+      where: { 
+        deleted_at: null,
+        is_free: true
+      },
+      skip,
+      take: pagination.pageSize
+    });
+    
+    const publicToilets = await prisma.toilet.findMany({
+      where: { 
+        deleted_at: null,
+        is_public: true
+      },
+      skip,
+      take: pagination.pageSize
+    });
+    
+    const handicapToilets = await prisma.toilet.findMany({
+      where: { 
+        deleted_at: null,
+        is_handicap: true
+      },
+      skip,
+      take: pagination.pageSize
+    });
+    
+    const commerceToilets = await prisma.toilet.findMany({
+      where: { 
+        deleted_at: null,
+        is_commerce: true
+      },
+      skip,
+      take: pagination.pageSize
     });
     
     // Count total active reviews
@@ -62,14 +135,28 @@ export async function GET(request: NextRequest) {
       : 0;
     
     // Count total active users
-    const totalUsers = await prisma.user.findMany({
+    const totalUsersCount = await prisma.user.count({
       where: { deleted_at: null }
+    });
+    
+    // Get paginated users
+    const totalUsers = await prisma.user.findMany({
+      where: { deleted_at: null },
+      skip,
+      take: pagination.pageSize
     });
 
     
     // Count total active pictures
-    const totalPictures = await prisma.picture.findMany({
+    const totalPicturesCount = await prisma.picture.count({
       where: { deleted_at: null }
+    });
+    
+    // Get paginated pictures
+    const totalPictures = await prisma.picture.findMany({
+      where: { deleted_at: null },
+      skip,
+      take: pagination.pageSize
     });
     
     // Get top rated toilets
@@ -154,19 +241,45 @@ export async function GET(request: NextRequest) {
     
     // Compile statistics
     const statistics = {
+      pagination: {
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        hasMore: {
+          toilets: totalToiletsCount > skip + pagination.pageSize,
+          verifiedToilets: verifiedToiletsCount > skip + pagination.pageSize,
+          freeToilets: freeToiletsCount > skip + pagination.pageSize,
+          publicToilets: publicToiletsCount > skip + pagination.pageSize,
+          handicapToilets: handicapToiletsCount > skip + pagination.pageSize,
+          commerceToilets: commerceToiletsCount > skip + pagination.pageSize,
+          users: totalUsersCount > skip + pagination.pageSize,
+          pictures: totalPicturesCount > skip + pagination.pageSize
+        }
+      },
       toilets: {
-        total: totalToilets.length,
+        total: totalToiletsCount,
         toilets: totalToilets,
         verified: {
-          total: verifiedToilets.length,
+          total: verifiedToiletsCount,
           toilets: verifiedToilets
         },
-        verificationRate: totalToilets.length > 0 ? (verifiedToilets.length / totalToilets.length) * 100 : 0,
+        verificationRate: totalToiletsCount > 0 ? (verifiedToiletsCount / totalToiletsCount) * 100 : 0,
         byType: {
-          free: freeToilets,
-          public: publicToilets,
-          handicap: handicapToilets,
-          commerce: commerceToilets
+          free: {
+            total: freeToiletsCount,
+            toilets: freeToilets
+          },
+          public: {
+            total: publicToiletsCount,
+            toilets: publicToilets
+          },
+          handicap: {
+            total: handicapToiletsCount,
+            toilets: handicapToilets
+          },
+          commerce: {
+            total: commerceToiletsCount,
+            toilets: commerceToilets
+          }
         }
       },
       reviews: {
@@ -174,11 +287,11 @@ export async function GET(request: NextRequest) {
         averageRating: parseFloat(avgRating.toFixed(2))
       },
       users: {
-        total: totalUsers.length,
+        total: totalUsersCount,
         users: totalUsers
       },
       pictures: {
-        total: totalPictures.length,
+        total: totalPicturesCount,
         pictures: totalPictures
       },
       topRated: topToilets,

@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 4000",
-    "build": "pnpm --filter @workspace/db db:generate && next build",
+    "build": "next build",
     "start": "next start"
   },
   "dependencies": {
-    "@prisma/nextjs-monorepo-workaround-plugin": "^6.11.0",
+    "@prisma/client": "^6.9.0",
     "@workspace/auth": "workspace:*",
     "@workspace/db": "workspace:*",
     "jsonwebtoken": "^9.0.2",

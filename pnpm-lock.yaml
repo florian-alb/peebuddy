@@ -33,9 +33,9 @@ importers:
 
   apps/api:
     dependencies:
-      '@prisma/nextjs-monorepo-workaround-plugin':
-        specifier: ^6.11.0
-        version: 6.11.0
+      '@prisma/client':
+        specifier: ^6.9.0
+        version: 6.11.0(prisma@6.11.0)(typescript@5.7.3)
       '@workspace/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -64,6 +64,9 @@ importers:
 
   apps/pwa:
     dependencies:
+      '@prisma/client':
+        specifier: ^6.9.0
+        version: 6.11.0(prisma@6.11.0)(typescript@5.7.3)
       '@radix-ui/react-label':
         specifier: ^2.1.7
         version: 2.1.7(@types/react-dom@19.1.6)(@types/react@19.1.8)(react-dom@19.1.0)(react@19.1.0)
@@ -140,6 +143,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@prisma/client':
+        specifier: ^6.9.0
+        version: 6.11.0(prisma@6.11.0)(typescript@5.7.3)
       '@radix-ui/react-select':
         specifier: ^2.2.5
         version: 2.2.5(@types/react-dom@19.1.6)(@types/react@19.1.8)(react-dom@19.1.0)(react@19.1.0)

@@ -17,8 +17,11 @@ import {
 import { LogIn, LogOut, User, Settings } from "lucide-react";
 import Link from "next/link";
 import { authClient, User as UserType } from "@workspace/auth";
+import { useRouter } from "next/navigation";
 
 export function UserNav({ user }: { user: UserType | null }) {
+  const router = useRouter();
+
   if (!user) {
     return (
       <Link href="/login">
@@ -38,6 +41,11 @@ export function UserNav({ user }: { user: UserType | null }) {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push("/");
   };
 
   return (
@@ -76,7 +84,7 @@ export function UserNav({ user }: { user: UserType | null }) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => authClient.signOut()}
+          onClick={() => handleSignOut()}
           className="text-red-600"
         >
           <LogOut className="mr-2 h-4 w-4" />

@@ -24,6 +24,9 @@ importers:
       prettier:
         specifier: ^3.5.1
         version: 3.6.2
+      prisma:
+        specifier: ^6.9.0
+        version: 6.11.0(typescript@5.7.3)
       turbo:
         specifier: ^2.4.2
         version: 2.5.4
@@ -35,7 +38,7 @@ importers:
     dependencies:
       '@prisma/client':
         specifier: ^6.9.0
-        version: 6.11.0(typescript@5.7.3)
+        version: 6.11.0(prisma@6.11.0)(typescript@5.7.3)
       '@workspace/auth':
         specifier: workspace:*
         version: link:../../packages/auth
@@ -2045,7 +2048,7 @@ packages:
       tslib: 2.8.1
     dev: false
 
-  /@prisma/client@6.11.0(typescript@5.7.3):
+  /@prisma/client@6.11.0(prisma@6.11.0)(typescript@5.7.3):
     resolution: {integrity: sha512-K9TkKepOYvCOg3qCuKz7ZHf6rf58BFKi08plKjU4qVv9y7/UxO6tLz7PlWcgODUZKURLPmRHjHERffIx/8az4w==}
     engines: {node: '>=18.18'}
     requiresBuild: true
@@ -2058,6 +2061,7 @@ packages:
       typescript:
         optional: true
     dependencies:
+      prisma: 6.11.0(typescript@5.7.3)
       typescript: 5.7.3
     dev: false
 
@@ -2065,15 +2069,12 @@ packages:
     resolution: {integrity: sha512-icBfutMpdrwSf2ggo012zhQ4oianijXL/UPbv4PNVK3WUWbB3/F5Ltq8ZfElGrtwKC6XuFFPxU5qDC9x7vh8zQ==}
     dependencies:
       jiti: 2.4.2
-    dev: true
 
   /@prisma/debug@6.11.0:
     resolution: {integrity: sha512-zo4oEZMWMt0BFWl+4NK9FUpaEOmjGR3y2/r0lkW/DK4BUBRgMj90s8QqK2K+vXG3xn0nAGg2kOSu+Swn60CFLg==}
-    dev: true
 
   /@prisma/engines-version@6.11.0-18.9c30299f5a0ea26a96790e13f796dc6094db3173:
     resolution: {integrity: sha512-M3vbyDICFIA1oJl0cFkM0omD4HsJZjFi0hu0f0UxyPABH8KEcZyUd5BToCrNl4B8lUeQn+L5+gfaQleOKp6Lrg==}
-    dev: true
 
   /@prisma/engines@6.11.0:
     resolution: {integrity: sha512-uqnYxvPKZPvYZA7F0q4gTR+fVWUJSY5bif7JAKBIOD5SoRRy0qEIaPy4Nna5WDLQaFGshaY/Bh8dLOQMfxhJJw==}
@@ -2083,7 +2084,6 @@ packages:
       '@prisma/engines-version': 6.11.0-18.9c30299f5a0ea26a96790e13f796dc6094db3173
       '@prisma/fetch-engine': 6.11.0
       '@prisma/get-platform': 6.11.0
-    dev: true
 
   /@prisma/fetch-engine@6.11.0:
     resolution: {integrity: sha512-ZHHSP7vJFo5hePH+MNovxhqXabIg38ZpCwQfUBON29kwPX3f1pjYnzGpgJLCJy4k7mKGOzTgrXPqH8+nJvq2fw==}
@@ -2091,13 +2091,11 @@ packages:
       '@prisma/debug': 6.11.0
       '@prisma/engines-version': 6.11.0-18.9c30299f5a0ea26a96790e13f796dc6094db3173
       '@prisma/get-platform': 6.11.0
-    dev: true
 
   /@prisma/get-platform@6.11.0:
     resolution: {integrity: sha512-yspBGvOfJQwuoApk5B4aBlHDy6YDXAOe4Ml8U2eZ+M2b7fDd10YDomS3Q4qrYHUUVYF3TJyN86NcnRMOvCMUrA==}
     dependencies:
       '@prisma/debug': 6.11.0
-    dev: true
 
   /@prisma/nextjs-monorepo-workaround-plugin@6.11.0:
     resolution: {integrity: sha512-4WwMkpuMIfJM1uPVjJQ5jCUrS+9icSc7SMI138o4J101FeLNy2b4hkiRdOEYcK+AX1cL5Ft40W3aJ5EDBjI39Q==}
@@ -5320,7 +5318,6 @@ packages:
   /jiti@2.4.2:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
-    dev: true
 
   /jose@6.0.11:
     resolution: {integrity: sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==}
@@ -6293,7 +6290,6 @@ packages:
       '@prisma/config': 6.11.0
       '@prisma/engines': 6.11.0
       typescript: 5.7.3
-    dev: true
 
   /prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}

@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "next dev --port 4000",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "postinstall": "pnpm --filter @workspace/db db:generate"
   },
   "dependencies": {
-    "@prisma/client": "^6.9.0",
     "@workspace/auth": "workspace:*",
     "@workspace/db": "workspace:*",
     "@workspace/ui": "workspace:*",
@@ -16,6 +16,7 @@
     "next": "15.3.4"
   },
   "devDependencies": {
+    "@prisma/nextjs-monorepo-workaround-plugin": "^6.11.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/react": "^19",

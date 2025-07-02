@@ -7,8 +7,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-
+    const id = (await params).id;
+    
     const review = await prisma.review.findUnique({
       where: {
         id,
@@ -56,7 +56,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const id = (await params).id;
     const body = await request.json();
 
     // Check if review exists
@@ -113,8 +113,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-
+    const id = (await params).id;
+    
     // Check if review exists
     const existingReview = await prisma.review.findUnique({
       where: {

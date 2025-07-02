@@ -11,7 +11,7 @@
     "prisma": "^6.9.0"
   },
   "dependencies": {
-    "@prisma/client": "^6.9.0",
+    "@prisma/client": "6.11.0",
     "@prisma/nextjs-monorepo-workaround-plugin": "^6.11.0"
   },
   "exports": {

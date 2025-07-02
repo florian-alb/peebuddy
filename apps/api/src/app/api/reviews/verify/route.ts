@@ -7,9 +7,8 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+    const id = (await params).id;
   try {
-    const { id } = await params;
-
     const existingReview = await prisma.review.findUnique({
       where: {
         id,
@@ -20,16 +19,14 @@ export async function POST(
     if (!existingReview) {
       return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
-
-    // If review is already verified, return success
+    
     if (existingReview.is_verified) {
       return NextResponse.json({
         message: "Review is already verified",
         review: existingReview,
       });
     }
-
-    // Update review to mark as verified
+    
     const verifiedReview = await prisma.review.update({
       where: { id },
       data: {
@@ -51,54 +48,47 @@ export async function POST(
   }
 }
 
-// DELETE to remove verification from a review
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-
-    // Check authentication and admin role
+    const id = (await params).id;
+    
     const sessionResult = await auth.api.getSession({
       headers: request.headers,
     });
-
-    if (!sessionResult?.user) {
+    
+    if (!sessionResult || !sessionResult.user) {
       return createErrorResponse("Authentication required", undefined, 401);
     }
-
-    // Verify admin role
+    
     const userRoles = (sessionResult.user as any).roles;
-    if (userRoles !== "admin" && !userRoles?.includes?.("admin")) {
-      return createErrorResponse(
-        "Admin access required to remove verification",
-        undefined,
-        403
-      );
+    if (userRoles !== 'admin' && !userRoles?.includes?.('admin')) {
+      return createErrorResponse("Admin access required to remove verification", undefined, 403);
     }
-
-    // Check if review exists
+    
     const existingReview = await prisma.review.findUnique({
-      where: {
+      where: { 
         id,
-        deleted_at: null,
+        deleted_at: null
       },
     });
-
+    
     if (!existingReview) {
-      return NextResponse.json({ error: "Review not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Review not found" },
+        { status: 404 }
+      );
     }
-
-    // If review is not verified, return success
+    
     if (!existingReview.is_verified) {
       return NextResponse.json({
         message: "Review is already unverified",
         review: existingReview,
       });
     }
-
-    // Update review to mark as unverified
+    
     const unverifiedReview = await prisma.review.update({
       where: { id },
       data: {

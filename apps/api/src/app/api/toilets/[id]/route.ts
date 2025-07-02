@@ -8,18 +8,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-
+    const id = (await params).id;
+    
     const toilet = await prisma.toilet.findUnique({
       where: {
         id,
         deleted_at: null,
       },
       include: {
-        Picture: {
+        pictures: {
           where: { deleted_at: null },
         },
-        Review: {
+        reviews: {
           where: { deleted_at: null },
           include: {
             User: {
@@ -38,17 +38,17 @@ export async function GET(
     }
 
     // Calculate average rating
-    const avgRating = toilet.Review.length
-      ? toilet.Review.reduce(
+    const avgRating = toilet.reviews.length
+      ? toilet.reviews.reduce(
           (sum: number, review: { rating: number }) => sum + review.rating,
           0
-        ) / toilet.Review.length
+        ) / toilet.reviews.length
       : null;
 
     const toiletWithRating: ToiletWithRating = {
       ...toilet,
       avgRating,
-      reviewCount: toilet.Review.length,
+      reviewCount: toilet.reviews.length,
     };
 
     return NextResponse.json(toiletWithRating);
@@ -67,9 +67,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const body = (await request.json()) as UpdateToiletDto;
-
+    const id = (await params).id;
+    const body = await request.json() as UpdateToiletDto;
+    
     // Check if toilet exists
     const existingToilet = await prisma.toilet.findUnique({
       where: {
@@ -118,8 +118,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-
+    const id = (await params).id;
+    
     // Check if toilet exists
     const existingToilet = await prisma.toilet.findUnique({
       where: {

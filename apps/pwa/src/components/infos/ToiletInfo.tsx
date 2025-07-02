@@ -8,7 +8,6 @@ import { Card } from "@workspace/ui/components/card";
 import { useState, useRef, useEffect } from "react";
 
 export const ToiletInfo = ({ toilet }: { toilet: Toilet }) => {
-  console.log("toilet", toilet);
   const [isExpanded, setIsExpanded] = useState(false);
   const [startY, setStartY] = useState(0);
   const [currentHeight, setCurrentHeight] = useState(0);

@@ -26,6 +26,7 @@ import { MapControls } from "@/components/map/MapControls";
 import { MapRouting } from "@/components/map/MapRouting";
 import { ToiletWithReviewsAndPictures } from "@/types/toilets";
 import { RouteInfo } from "@/hooks/useDirection";
+import { AddToiletModal } from "../AddToiletModal";
 
 export default function MapComponent() {
   const { width, height } = useWindowSize();
@@ -149,6 +150,8 @@ export default function MapComponent() {
       {selectedToilet && (
         <ToiletInfo toilet={selectedToilet} routeInfo={routeInfo} />
       )}
+
+      <AddToiletModal />
 
       {/* Display errors if necessary*/}
       {error && (

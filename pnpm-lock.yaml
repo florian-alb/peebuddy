@@ -33,9 +33,6 @@ importers:
 
   apps/api:
     dependencies:
-      '@prisma/nextjs-monorepo-workaround-plugin':
-        specifier: ^6.11.0
-        version: 6.11.0
       '@workspace/auth':
         specifier: workspace:*
         version: link:../../packages/auth

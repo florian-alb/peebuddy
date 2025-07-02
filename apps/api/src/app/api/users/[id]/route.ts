@@ -4,15 +4,15 @@ import { NextRequest, NextResponse } from "next/server";
 // GET a specific user by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
-    
+    const { id } = await params;
+
     const user = await prisma.user.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
       select: {
         id: true,
@@ -20,7 +20,7 @@ export async function GET(
         email: true,
         emailVerified: true,
         image: true,
-        roles: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
         // Include reviews by this user
@@ -32,27 +32,24 @@ export async function GET(
                 id: true,
                 longitude: true,
                 latitude: true,
-              }
-            }
+              },
+            },
           },
           orderBy: {
-            created_at: 'desc'
+            created_at: "desc",
           },
-          take: 10
+          take: 10,
         },
         // Exclude sensitive information
         accounts: false,
         sessions: false,
       },
     });
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    
+
     return NextResponse.json(user);
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -66,34 +63,31 @@ export async function GET(
 // PUT update a user
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const body = await request.json();
-    
+
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!existingUser) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    
+
     // Update user
     const updatedUser = await prisma.user.update({
       where: { id },
       data: {
         name: body.name !== undefined ? body.name : undefined,
         image: body.image !== undefined ? body.image : undefined,
-        roles: body.roles !== undefined ? body.roles : undefined,
+        role: body.role !== undefined ? body.role : undefined,
         updatedAt: new Date(),
         updated_at: new Date(),
       },
@@ -103,12 +97,12 @@ export async function PUT(
         email: true,
         emailVerified: true,
         image: true,
-        roles: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
-      }
+      },
     });
-    
+
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error updating user:", error);
@@ -122,26 +116,23 @@ export async function PUT(
 // DELETE a user (soft delete)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
-    
+    const { id } = await params;
+
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { 
+      where: {
         id,
-        deleted_at: null
+        deleted_at: null,
       },
     });
-    
+
     if (!existingUser) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    
+
     // Soft delete the user
     const deletedUser = await prisma.user.update({
       where: { id },
@@ -150,7 +141,7 @@ export async function DELETE(
         deleted_at: new Date(),
       },
     });
-    
+
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
     console.error("Error deleting user:", error);

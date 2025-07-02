@@ -1,6 +1,12 @@
 import { prisma } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
 // Function to calculate distance between two points using Haversine formula
 function calculateDistance(
   lat1: number,
@@ -35,7 +41,7 @@ export async function GET(request: NextRequest) {
     if (!latitude || !longitude) {
       return NextResponse.json(
         { error: "Latitude and longitude are required" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -53,7 +59,7 @@ export async function GET(request: NextRequest) {
     ) {
       return NextResponse.json(
         { error: "Invalid coordinates" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -105,11 +111,11 @@ export async function GET(request: NextRequest) {
     const toilets = await prisma.toilet.findMany({
       where: filter,
       include: {
-        Picture: {
+        pictures: {
           where: { deleted_at: null },
           take: 1, // Get just one picture for preview
         },
-        Review: {
+        reviews: {
           where: { deleted_at: null },
           select: { rating: true },
         },
@@ -127,37 +133,40 @@ export async function GET(request: NextRequest) {
         );
 
         // Calculate average rating
-        const avgRating = toilet.Review.length
-          ? toilet.Review.reduce((sum, review) => sum + review.rating, 0) /
-            toilet.Review.length
+        const avgRating = toilet.reviews.length
+          ? toilet.reviews.reduce((sum, review) => sum + review.rating, 0) /
+            toilet.reviews.length
           : null;
 
         return {
           ...toilet,
           distance, // Add distance to the toilet object
           avgRating,
-          reviewCount: toilet.Review.length,
-          Review: undefined, // Remove raw reviews from response
+          reviewCount: toilet.reviews.length,
+          reviews: undefined, // Remove raw reviews from response
         };
       })
       .filter((toilet) => toilet.distance <= radiusKm) // Filter by radius
       .sort((a, b) => a.distance - b.distance) // Sort by distance (closest first)
       .slice(0, limit); // Limit results
 
-    return NextResponse.json({
-      data: nearbyToilets,
-      meta: {
-        total: nearbyToilets.length,
-        latitude: lat,
-        longitude: lon,
-        radiusKm,
+    return NextResponse.json(
+      {
+        data: nearbyToilets,
+        meta: {
+          total: nearbyToilets.length,
+          latitude: lat,
+          longitude: lon,
+          radiusKm,
+        },
       },
-    });
+      { headers: corsHeaders }
+    );
   } catch (error) {
     console.error("Error finding nearby toilets:", error);
     return NextResponse.json(
       { error: "Failed to find nearby toilets" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

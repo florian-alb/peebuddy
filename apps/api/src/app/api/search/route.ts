@@ -63,11 +63,11 @@ export async function GET(request: NextRequest) {
             ],
           },
           include: {
-            Review: {
+            reviews: {
               where: { deleted_at: null },
               select: { rating: true },
             },
-            Picture: {
+            pictures: {
               where: { deleted_at: null },
               take: 1,
             },
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
         toilets = await prisma.toilet.findMany({
           where: {
             deleted_at: null,
-            Review: {
+            reviews: {
               some: {
                 deleted_at: null,
                 comment: {
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
             },
           },
           include: {
-            Review: {
+            reviews: {
               where: {
                 deleted_at: null,
                 comment: {
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
               },
               take: 3, // Limit the number of matching reviews returned
             },
-            Picture: {
+            pictures: {
               where: { deleted_at: null },
               take: 1,
             },
@@ -125,15 +125,15 @@ export async function GET(request: NextRequest) {
 
       // Calculate average rating for each toilet
       const toiletsWithRating = toilets.map((toilet) => {
-        const avgRating = toilet.Review.length
-          ? toilet.Review.reduce((sum, review) => sum + review.rating, 0) /
-            toilet.Review.length
+        const avgRating = toilet.reviews.length
+          ? toilet.reviews.reduce((sum, review) => sum + review.rating, 0) /
+            toilet.reviews.length
           : null;
 
         return {
           ...toilet,
           avgRating,
-          reviewCount: toilet.Review.length,
+          reviewCount: toilet.reviews.length,
         };
       });
 

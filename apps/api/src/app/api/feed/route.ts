@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 const data = {
   elements: [
     {
-      lat: 48.8566,
-      lon: 2.3522,
+      lat: 43.336504,
+      lon: 1.246195,
     },
   ],
 };
@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
   const toilets = data.elements
     .map((toilet) => {
       if (!toilet.lat || !toilet.lon) return null;
+
       return {
         latitude: toilet.lat.toString(),
         longitude: toilet.lon.toString(),
@@ -53,9 +54,18 @@ export async function GET(request: NextRequest) {
           continue;
         }
 
+        const address = await fetch(
+          `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${toiletData.longitude}&latitude=${toiletData.latitude}&access_token=${process.env.MAPBOX_ACCESS_TOKEN}`
+        );
+        const addressData = await address.json();
+        const add = addressData.features[0].properties.full_address;
+
         // Créer la toilette
         const newToilet = await prisma.toilet.create({
-          data: toiletData,
+          data: {
+            ...toiletData,
+            address: add,
+          },
         });
 
         results.success++;

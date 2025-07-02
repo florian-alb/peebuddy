@@ -4,10 +4,10 @@ import { prisma } from "@workspace/db";
 import { bearer, customSession } from "better-auth/plugins";
 
 async function findUserRoles(userId: string) {
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-    });
-    return user?.role || 'user';
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  return user?.role || "user";
 }
 
 export const auth = betterAuth({
@@ -19,18 +19,33 @@ export const auth = betterAuth({
   },
   plugins: [
     customSession(async ({ user, session }) => {
-        const userRole = await findUserRoles(user.id);
-        return {
-            user: {
-                ...user,
-                role: userRole,
-            },
-            session
-        };
+      const userRole = await findUserRoles(user.id);
+      return {
+        user: {
+          ...user,
+          role: userRole,
+        },
+        session,
+      };
     }),
-    bearer()  
-],  
-  trustedOrigins: ["http://localhost:3001/*", "http://localhost:3000/*", "http://localhost:3000"],
+    bearer(),
+  ],
+  trustedOrigins: [
+    "http://localhost:3001/*",
+    "http://localhost:3001",
+
+    "http://localhost:3000/*",
+    "http://localhost:3000",
+
+    "https://peebuddy.vercel.app/*",
+    "https://peebuddy.vercel.app",
+
+    "https://peebuddy-api.vercel.app/*",
+    "https://peebuddy-api.vercel.app",
+
+    "https://peebuuddy-dashboard.vercel.app/*",
+    "https://peebuuddy-dashboard.vercel.app",
+  ],
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID as string,

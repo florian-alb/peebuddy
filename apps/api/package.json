@@ -9,7 +9,6 @@
     "postinstall": "pnpm --filter @workspace/db db:generate"
   },
   "dependencies": {
-    "@prisma/client": "^6.9.0",
     "@workspace/auth": "workspace:*",
     "@workspace/db": "workspace:*",
     "jsonwebtoken": "^9.0.2",

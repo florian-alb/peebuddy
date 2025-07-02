@@ -1,8 +1,7 @@
 "use client";
 
 import { Clock, Image as ImageIcon, Star, User } from "lucide-react";
-import { Picture, Review, Toilet } from "@workspace/db";
-import { Button } from "@workspace/ui/components/button";
+import { Review } from "@workspace/db";
 import { Badge } from "@workspace/ui/components/badge";
 import { Card } from "@workspace/ui/components/card";
 import { useState, useRef, useEffect } from "react";

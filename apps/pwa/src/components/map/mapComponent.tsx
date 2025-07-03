@@ -115,6 +115,8 @@ export default function MapComponent() {
             url={DEFAULT_TILE_LAYER}
           />
 
+          <AddToiletModal />
+
           <MapCenterListener onCenterChange={handleMapCenterChange} />
 
           {/* Toilet markers */}
@@ -150,8 +152,6 @@ export default function MapComponent() {
       {selectedToilet && (
         <ToiletInfo toilet={selectedToilet} routeInfo={routeInfo} />
       )}
-
-      <AddToiletModal />
 
       {/* Display errors if necessary*/}
       {error && (

@@ -114,7 +114,15 @@ export async function GET(request: NextRequest) {
 }
 
 // POST create a new toilet
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
+  request.headers.set("Access-Control-Allow-Origin", "*");
+  request.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  request.headers.set("Access-Control-Allow-Headers", "Content-Type");
+
+  if (request.method === "OPTIONS") {
+    return NextResponse.json({}, { status: 200 });
+  }
+
   try {
     const body = (await request.json()) as CreateToiletDto;
 
@@ -131,6 +139,7 @@ export async function POST(request: NextRequest) {
       data: {
         longitude: body.longitude.toString(),
         latitude: body.latitude.toString(),
+        address: body.address,
         is_free: body.is_free ?? false,
         is_public: body.is_public ?? false,
         is_handicap: body.is_handicap ?? false,
@@ -139,6 +148,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log("Toilet created successfully:", newToilet);
     return NextResponse.json(newToilet, { status: 201 });
   } catch (error) {
     console.error("Error creating toilet:", error);

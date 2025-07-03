@@ -1,13 +1,37 @@
 import { prisma } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "http://localhost:3001",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+  "Access-Control-Allow-Credentials": "true",
+};
+
+// Handle OPTIONS requests for CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders
+  });
+}
+
 // POST to verify a toilet
 export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  request: NextRequest
 ) {
   try {
-    const id = (await params).id;
+    // Get ID from request body instead of params
+    const body = await request.json();
+    const id = body.id;
+    console.log("id", id);
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: "Toilet ID is required" },
+        { status: 400, headers: corsHeaders }
+      );
+    }
     
     const existingToilet = await prisma.toilet.findUnique({
       where: { 
@@ -19,7 +43,7 @@ export async function POST(
     if (!existingToilet) {
       return NextResponse.json(
         { error: "Toilet not found" },
-        { status: 404 }
+        { status: 404, headers: corsHeaders }
       );
     }
     
@@ -27,7 +51,7 @@ export async function POST(
       return NextResponse.json({
         message: "Toilet is already verified",
         toilet: existingToilet
-      });
+      }, { headers: corsHeaders });
     }
     
     // Update toilet to mark as verified
@@ -42,12 +66,12 @@ export async function POST(
     return NextResponse.json({
       message: "Toilet verified successfully",
       toilet: verifiedToilet
-    });
+    }, { headers: corsHeaders });
   } catch (error) {
     console.error("Error verifying toilet:", error);
     return NextResponse.json(
       { error: "Failed to verify toilet" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

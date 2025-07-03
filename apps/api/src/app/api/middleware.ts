@@ -3,9 +3,10 @@ import { auth } from "@workspace/auth";
 import { headers } from "next/headers";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "http://localhost:3001",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+  "Access-Control-Allow-Credentials": "true",
 };
 
 const publicPaths = [
@@ -51,10 +52,14 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const method = request.method;
   
+  // Handle preflight requests
   if (method === "OPTIONS") {
     return new NextResponse(null, {
-      status: 200,
-      headers: corsHeaders,
+      status: 204,
+      headers: {
+        ...corsHeaders,
+        "Content-Length": "0",
+      },
     });
   }
 

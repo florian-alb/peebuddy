@@ -131,6 +131,7 @@ export async function POST(request: NextRequest) {
       data: {
         longitude: body.longitude.toString(),
         latitude: body.latitude.toString(),
+        address: body.address,
         is_free: body.is_free ?? false,
         is_public: body.is_public ?? false,
         is_handicap: body.is_handicap ?? false,
@@ -139,6 +140,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log("Toilet created successfully:", newToilet);
     return NextResponse.json(newToilet, { status: 201 });
   } catch (error) {
     console.error("Error creating toilet:", error);

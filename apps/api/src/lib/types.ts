@@ -18,11 +18,12 @@ export type NearbyParams = {
   latitude: number;
   longitude: number;
   radius?: number;
-} & ToiletFilters & PaginationParams;
+} & ToiletFilters &
+  PaginationParams;
 
 export type SearchParams = {
   q: string;
-  type?: 'toilets' | 'reviews' | 'users';
+  type?: "toilets" | "reviews" | "users";
 } & PaginationParams;
 
 // Extended types with calculated fields
@@ -37,7 +38,7 @@ export type ToiletWithDistance = ToiletWithRating & {
   distance: number;
 };
 
-export type UserWithReviewCount = Omit<User, 'accounts' | 'sessions'> & {
+export type UserWithReviewCount = Omit<User, "accounts" | "sessions"> & {
   reviewCount: number;
 };
 
@@ -45,6 +46,7 @@ export type UserWithReviewCount = Omit<User, 'accounts' | 'sessions'> & {
 export type CreateToiletDto = {
   longitude: Prisma.Decimal | number | string;
   latitude: Prisma.Decimal | number | string;
+  address?: string;
   is_free?: boolean;
   is_public?: boolean;
   is_handicap?: boolean;

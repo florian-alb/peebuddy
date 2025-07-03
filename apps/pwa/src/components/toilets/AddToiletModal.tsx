@@ -17,8 +17,10 @@ import {
 import { Card, CardContent } from "@workspace/ui/components/card";
 import { Badge } from "@workspace/ui/components/badge";
 import { Separator } from "@workspace/ui/components/separator";
-import { PlusIcon } from "lucide-react";
+import { Link, PlusIcon } from "lucide-react";
 import { useIsMobile } from "@workspace/ui/hooks/useMobile";
+import { authClient } from "@workspace/auth";
+import { toast } from "@workspace/ui";
 
 interface AddToiletFormData {
   longitude: string;
@@ -31,13 +33,14 @@ interface AddToiletFormData {
 }
 
 interface AddToiletModalProps {
-  onAddToilet?: (data: AddToiletFormData) => void;
   trigger?: React.ReactNode;
 }
 
-export function AddToiletModal({ onAddToilet, trigger }: AddToiletModalProps) {
+export function AddToiletModal({ trigger }: AddToiletModalProps) {
   const [open, setOpen] = useState(false);
+  const { data } = authClient.useSession();
   const isMobile = useIsMobile();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<AddToiletFormData>({
     longitude: "",
     latitude: "",
@@ -61,6 +64,8 @@ export function AddToiletModal({ onAddToilet, trigger }: AddToiletModalProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    console.log(formData);
+
     // Validation basique
     if (!formData.longitude || !formData.latitude) {
       alert("La longitude et la latitude sont requises");
@@ -76,6 +81,11 @@ export function AddToiletModal({ onAddToilet, trigger }: AddToiletModalProps) {
       return;
     }
 
+    if (!formData.address) {
+      alert("L'adresse est requise");
+      return;
+    }
+
     if (lat < -90 || lat > 90) {
       alert("La latitude doit être entre -90 et 90");
       return;
@@ -86,17 +96,51 @@ export function AddToiletModal({ onAddToilet, trigger }: AddToiletModalProps) {
       return;
     }
 
-    onAddToilet?.(formData);
-    setOpen(false);
-    setFormData({
-      longitude: "",
-      latitude: "",
-      address: "",
-      is_free: false,
-      is_public: false,
-      is_handicap: false,
-      is_commerce: false,
-    });
+    onAddToilet(formData);
+  };
+
+  const onAddToilet = async (formData: AddToiletFormData) => {
+    if (!data?.session?.token) {
+      toast.error("Vous devez être connecté pour ajouter une toilette");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/toilets`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${data?.session?.token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (!response.ok) {
+        setIsLoading(false);
+        throw new Error("Erreur lors de l'ajout de la toilette");
+      }
+
+      setOpen(false);
+      setFormData({
+        longitude: "",
+        latitude: "",
+        address: "",
+        is_free: false,
+        is_public: false,
+        is_handicap: false,
+        is_commerce: false,
+      });
+
+      toast.success("Toilette ajoutée avec succès");
+    } catch (error) {
+      toast.error("Erreur lors de l'ajout de la toilette", {
+        description: error instanceof Error ? error.message : "Erreur inconnue",
+      });
+    }
   };
 
   const toggleBoolean = (field: keyof AddToiletFormData) => {
@@ -105,6 +149,31 @@ export function AddToiletModal({ onAddToilet, trigger }: AddToiletModalProps) {
       [field]: !prev[field],
     }));
   };
+
+  if (!data?.session?.token) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button variant="default">
+            <PlusIcon className="w-4 h-4" />
+            {!isMobile && "Ajouter une toilette"}
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Vous devez être connecté pour ajouter une toilette
+            </DialogTitle>
+            <DialogDescription>
+              <Link href="/login">
+                <Button variant="default">Se connecter</Button>
+              </Link>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -264,13 +333,16 @@ export function AddToiletModal({ onAddToilet, trigger }: AddToiletModalProps) {
 
           <DialogFooter>
             <Button
+              disabled={isLoading}
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
             >
               Annuler
             </Button>
-            <Button type="submit">Ajouter la toilette</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Ajout en cours..." : "Ajouter la toilette"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

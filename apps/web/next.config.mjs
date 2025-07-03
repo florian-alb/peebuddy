@@ -13,13 +13,7 @@ const nextConfig = {
       },
     ];
   },
-  webpack: async (config, { isServer }) => {
-    if (isServer) {
-      const { PrismaPlugin } = await import(
-        "@prisma/nextjs-monorepo-workaround-plugin"
-      );
-      config.plugins = [...config.plugins, new PrismaPlugin()];
-    }
+  webpack: (config) => {
     return config;
   },
 };

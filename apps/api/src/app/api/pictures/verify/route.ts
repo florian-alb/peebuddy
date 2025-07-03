@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 // POST to verify a picture
 export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  request: NextRequest
 ) {
   try {
-    const id = (await params).id;
+    const body = await request.json();
+    const id = body.id;
     
     const existingPicture = await prisma.picture.findUnique({
       where: { 

@@ -28,6 +28,14 @@ function calculateDistance(
   return distance;
 }
 
+// Handle OPTIONS requests for CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders
+  });
+}
+
 // GET toilets near a specific location
 export async function GET(request: NextRequest) {
   try {

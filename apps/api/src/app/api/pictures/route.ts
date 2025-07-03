@@ -57,10 +57,10 @@ export async function GET(request: NextRequest) {
 }
 
 // POST create a new picture
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: NextRequest) {
   try {
-    const id = (await params).id;
     const body = await request.json();
+    const id = body.id;
     
     // Validate required fields
     if (!body.url) {

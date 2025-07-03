@@ -120,7 +120,6 @@ export function AddToiletModal({ trigger }: AddToiletModalProps) {
       );
 
       if (!response.ok) {
-        setIsLoading(false);
         throw new Error("Erreur lors de l'ajout de la toilette");
       }
 
@@ -140,6 +139,8 @@ export function AddToiletModal({ trigger }: AddToiletModalProps) {
       toast.error("Erreur lors de l'ajout de la toilette", {
         description: error instanceof Error ? error.message : "Erreur inconnue",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

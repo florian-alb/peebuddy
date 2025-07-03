@@ -114,7 +114,15 @@ export async function GET(request: NextRequest) {
 }
 
 // POST create a new toilet
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
+  request.headers.set("Access-Control-Allow-Origin", "*");
+  request.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  request.headers.set("Access-Control-Allow-Headers", "Content-Type");
+
+  if (request.method === "OPTIONS") {
+    return NextResponse.json({}, { status: 200 });
+  }
+
   try {
     const body = (await request.json()) as CreateToiletDto;
 

@@ -13,7 +13,10 @@
         "ROBLOX_CLIENT_ID",
         "ROBLOX_CLIENT_SECRET",
         "BETTER_AUTH_SECRET",
-        "VAPID_PRIVATE_KEY"
+        "VAPID_PRIVATE_KEY",
+        "NEXT_PUBLIC_MAPBOX_API_KEY",
+        "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN",
+        "BETTER_AUTH_URL"
       ]
     },
     "lint": {
@@ -35,7 +38,8 @@
         "BETTER_AUTH_SECRET",
         "VAPID_PRIVATE_KEY",
         "NEXT_PUBLIC_MAPBOX_API_KEY",
-        "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN"
+        "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN",
+        "BETTER_AUTH_URL"
       ]
     },
     "db:generate": {

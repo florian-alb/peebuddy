@@ -4,14 +4,17 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/auth/:path*',
-        destination: '/api/auth/:path*',
+        source: "/api/auth/:path*",
+        destination: "/api/auth/:path*",
       },
       {
-        source: '/api/:path*',
-        destination: 'http://localhost:4000/api/:path*',
+        source: "/api/:path*",
+        destination: "http://localhost:4000/api/:path*",
       },
-    ]
+    ];
+  },
+  webpack: (config) => {
+    return config;
   },
 };
 

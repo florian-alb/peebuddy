@@ -4,6 +4,7 @@ import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers";
 
 import "../styles/leaflet.css";
+import { Toaster } from "@workspace/ui/components/sonner";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -62,6 +63,7 @@ export default function RootLayout({
         <div className="h-screen w-screen overflow-hidden">
           <Providers>{children}</Providers>
         </div>
+        <Toaster richColors />
       </body>
     </html>
   );

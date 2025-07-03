@@ -1,13 +1,19 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useMap } from "./useMap";
 import L from "leaflet";
 import "leaflet-routing-machine";
 
+export interface RouteInfo {
+  distance: number;
+  duration: number;
+}
+
 export const useDirection = () => {
   const { map, userLocation } = useMap();
   const currentRouteRef = useRef<L.Routing.Control | null>(null);
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
 
   // Calculate route to destination
   const calculateRoute = useCallback(
@@ -56,6 +62,12 @@ export const useDirection = () => {
           extendToWaypoints: true,
           missingRouteTolerance: 0,
         },
+      }).on("routesfound", (e: any) => {
+        const route = e.routes[0];
+        const distance = route.summary.totalDistance / 1000;
+        const duration = route.summary.totalTime / 60;
+
+        setRouteInfo({ distance, duration });
       });
 
       routingControl.addTo(map);
@@ -64,5 +76,5 @@ export const useDirection = () => {
     [map, userLocation]
   );
 
-  return { calculateRoute };
+  return { calculateRoute, routeInfo };
 };

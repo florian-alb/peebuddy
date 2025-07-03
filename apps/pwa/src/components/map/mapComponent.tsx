@@ -22,15 +22,20 @@ import {
 import { LatLngLiteral } from "leaflet";
 import { MapCenterListener } from "@/components/map/mapCenterListener";
 import { ToiletMarker } from "@/components/map/ToiletMarker";
-import { LocationButton, ZoomControls } from "@/components/map/MapControls";
+import { MapControls } from "@/components/map/MapControls";
 import { MapRouting } from "@/components/map/MapRouting";
+import { ToiletWithReviewsAndPictures } from "@/types/toilets";
+import { RouteInfo } from "@/hooks/useDirection";
+import { AddToiletModal } from "../toilets/AddToiletModal";
 
 export default function MapComponent() {
   const { width, height } = useWindowSize();
   const { position: userLocation, error } = useGeolocation();
-  const [selectedToilet, setSelectedToilet] = useState<Toilet | null>(null);
-  const [toilets, setToilets] = useState<Toilet[]>([]);
+  const [selectedToilet, setSelectedToilet] =
+    useState<ToiletWithReviewsAndPictures | null>(null);
+  const [toilets, setToilets] = useState<ToiletWithReviewsAndPictures[]>([]);
   const [mapCenter, setMapCenter] = useState<LatLngLiteral>(DEFAULT_CENTER);
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
 
   useEffect(() => {
     if (!mapCenter) return;
@@ -70,7 +75,7 @@ export default function MapComponent() {
     }
   }, [userLocation, selectedToilet]);
 
-  const handleToiletClick = (toilet: Toilet) => {
+  const handleToiletClick = (toilet: ToiletWithReviewsAndPictures) => {
     setSelectedToilet(toilet);
   };
 
@@ -81,6 +86,10 @@ export default function MapComponent() {
   function showMarker(toilet: Toilet) {
     return !toilet.is_verified;
   }
+
+  const getRouteInfo = (routeInfo: RouteInfo | null) => {
+    setRouteInfo(routeInfo);
+  };
 
   if (width === 0 || height === 0) {
     return null;
@@ -122,10 +131,10 @@ export default function MapComponent() {
             )}
 
           {userLocation && <UserLocationMarker position={userLocation} />}
-          <LocationButton />
-          <ZoomControls />
+          <MapControls />
           {selectedToilet && (
             <MapRouting
+              onRouteCalculated={getRouteInfo}
               selectedToilet={{
                 position: [
                   parseFloat(selectedToilet.latitude),
@@ -138,7 +147,11 @@ export default function MapComponent() {
       </div>
 
       {/* Display toilet info */}
-      {selectedToilet && <ToiletInfo toilet={selectedToilet} />}
+      {selectedToilet && (
+        <ToiletInfo toilet={selectedToilet} routeInfo={routeInfo} />
+      )}
+
+      <AddToiletModal />
 
       {/* Display errors if necessary*/}
       {error && (

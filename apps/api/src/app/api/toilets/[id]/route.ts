@@ -16,10 +16,10 @@ export async function GET(
         deleted_at: null,
       },
       include: {
-        Picture: {
+        pictures: {
           where: { deleted_at: null },
         },
-        Review: {
+        reviews: {
           where: { deleted_at: null },
           include: {
             User: {
@@ -38,17 +38,17 @@ export async function GET(
     }
 
     // Calculate average rating
-    const avgRating = toilet.Review.length
-      ? toilet.Review.reduce(
+    const avgRating = toilet.reviews.length
+      ? toilet.reviews.reduce(
           (sum: number, review: { rating: number }) => sum + review.rating,
           0
-        ) / toilet.Review.length
+        ) / toilet.reviews.length
       : null;
 
     const toiletWithRating: ToiletWithRating = {
       ...toilet,
       avgRating,
-      reviewCount: toilet.Review.length,
+      reviewCount: toilet.reviews.length,
     };
 
     return NextResponse.json(toiletWithRating);

@@ -51,8 +51,6 @@ const createErrorResponse = (message: string, status: number) => {
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const method = request.method;
-  
-  // Handle preflight requests
   if (method === "OPTIONS") {
     return new NextResponse(null, {
       status: 204,
@@ -63,37 +61,39 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  if (method === "GET" && publicPaths.some(p => path.startsWith(p.replace("[id]", "")))) {
+  if (
+    ["GET", "POST"].includes(method) &&
+    publicPaths.some((p) => path.startsWith(p.replace("[id]", "")))
+  ) {
     return addCorsHeaders(NextResponse.next());
   }
-  
+
   if (request.nextUrl.pathname.startsWith("/api/auth")) {
     return addCorsHeaders(NextResponse.next());
   }
   try {
-    
     const sessionData = await auth.api.getSession({
       headers: await headers(),
     });
-  
-    console.log('sessionData', sessionData);
+
+    console.log("sessionData", sessionData);
     if (!sessionData || !sessionData.user) {
       return createErrorResponse("Authentication required", 401);
     }
-    
-    if (adminPaths.some(p => path.startsWith(p.replace("[id]", "")))) {
-      const isAdmin = sessionData.user.role === 'admin';
-      
+
+    if (adminPaths.some((p) => path.startsWith(p.replace("[id]", "")))) {
+      const isAdmin = sessionData.user.role === "admin";
+
       if (!isAdmin) {
         return createErrorResponse("Admin access required", 403);
       }
     }
-    
+
     const response = NextResponse.next();
     response.headers.set("x-user-id", sessionData.user.id);
     response.headers.set("x-user-email", sessionData.user.email);
-    response.headers.set("x-user-role", sessionData.user.role || 'user');
-    
+    response.headers.set("x-user-role", sessionData.user.role || "user");
+
     return addCorsHeaders(response);
   } catch (error) {
     console.error("Authentication error:", error);
